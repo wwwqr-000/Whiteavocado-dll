@@ -4,6 +4,7 @@ import threading
 
 dll = ctypes.CDLL("../bin/Release/hardware-emulator.dll")
 
+#Setup dll methods
 dll.beep.restype = None
 dll.beep.argtypes = [ctypes.c_char_p]
 dll.key.restype = None
@@ -14,8 +15,12 @@ dll.mouseTP.restype = None
 dll.mouseTP.argtypes = [ctypes.c_int, ctypes.c_int]
 dll.mouseMove.restype = None
 dll.mouseMove.argtypes = [ctypes.c_int, ctypes.c_int]
-
-time.sleep(5)
+dll.manageCD.restype = None
+dll.manageCD.argtypes = [ctypes.c_char_p]
+dll.playAudio.restype = None
+dll.playAudio.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+dll.stopAudio.restype = None
+dll.stopAudio.argtypes = [ctypes.c_char_p]
 
 def sprint(duration):
     dll.key(b"w", 50)
@@ -37,10 +42,11 @@ def elytra_startup():
 
 #elytra_startup()
 
-dll.mouseKey(b"left_down")
-time.sleep(1)
-dll.mouseKey(b"left_up")
-elytra_startup()
+dll.mouseTP(10, 10)
+dll.manageCD(b"open")
+dll.playAudio(b"./rick.mp3", b"rickroll")
+time.sleep(10)
+dll.stopAudio(b"rickroll")
 
 #for x in range(100):
 #    dll.mouseKey(b"left_down")

@@ -2,11 +2,56 @@
 #include <windows.h>
 #include <iostream>
 
-#include <windows.h>
-#include <iostream>
+//For cd manager
+#include <mmsystem.h>
+//
+
+//Linkers for compiler: user32, winmm
+
+std::string gsfcp(const char* in) { return std::string(in); }//Get String From Char Pointer
+
+extern "C" void __cdecl playAudio(const char* path_, const char* name_) {
+    std::string path = gsfcp(path_);
+    std::string name = gsfcp(name_);
+    mciSendString(("open \"" + path + "\" type mpegvideo alias " + name).c_str(), NULL, 0, NULL);
+    mciSendString(("play " + name).c_str(), NULL, 0, NULL);
+}
+
+extern "C" void __cdecl stopAudio(const char* name) { mciSendString(("close " + gsfcp(name)).c_str(), NULL, 0, NULL); }
+
+char getCDDriveLetter() {
+    char drive = '\0';
+    DWORD drives = GetLogicalDrives();
+
+    for (char i = 'A'; i <= 'Z'; i++) {
+        if (drives & (1 << (i - 'A'))) {
+            std::string rootPath = std::string(1, i) + ":\\";
+            UINT driveType = GetDriveType(rootPath.c_str());
+            if (driveType == DRIVE_CDROM) {
+                drive = i;
+                break;
+            }
+        }
+    }
+    return drive;
+}
+
+extern "C" void __cdecl manageCD(const char* status_) {
+    std::string driveLetter = std::to_string(getCDDriveLetter());
+    std::string status = gsfcp(status_);
+    if (status == "open") {
+        std::string command = "open " + driveLetter + ": type CDAudio alias cd";
+        mciSendString(command.c_str(), NULL, 0, NULL);
+        mciSendString("set cd door open", NULL, 0, NULL);
+    }
+    else if (status == "close") {
+        mciSendString("set cd door closed", NULL, 0, NULL);
+        mciSendString("close cd", NULL, 0, NULL);
+    }
+}
 
 extern "C" void __cdecl beep(const char* type) {
-    std::string strType = std::string(type);
+    std::string strType = gsfcp(type);
     if (strType == "normal") {
         MessageBeep(MB_ICONASTERISK);
     }
@@ -27,7 +72,6 @@ void keyPress(BYTE b, int ms) {
     keybd_event(b, 0, KEYEVENTF_KEYUP, 0);
 }
 
-BYTE intToByte(int in) { return (byte)in; }
 BYTE charToVKCode(char in) {
     BYTE A = 0x41;
     if (in >= 'a' && in <= 'z') {
@@ -40,7 +84,7 @@ BYTE charToVKCode(char in) {
 }
 
 extern "C" void __cdecl key(const char* type_, int ms = 10) {
-    std::string type = std::string(type_);
+    std::string type = gsfcp(type_);
     if (type == "space") {
         keyPress(0x20, ms);
     }
@@ -92,8 +136,6 @@ extern "C" void __cdecl mouseTP(int x, int y) {
 extern "C" void __cdecl mouseMove(int offsetX, int offsetY) {
     POINT pt;
     GetCursorPos(&pt);
-    int newX = pt.x + offsetX;
-    int newY = pt.y + offsetY;
     int steps = 1000;
 
     for (int i = 0; i < steps; i++) {
@@ -104,7 +146,7 @@ extern "C" void __cdecl mouseMove(int offsetX, int offsetY) {
 }
 
 extern "C" void __cdecl mouseKey(const char* btn_) {
-    std::string btn = std::string(btn_);
+    std::string btn = gsfcp(btn_);
     POINT pt;
     GetCursorPos(&pt);
 
