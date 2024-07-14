@@ -81,7 +81,25 @@ extern "C" void __cdecl key(const char* type_) {
     beep("click");
 }
 
-extern "C" void __cdecl mouse(const char* btn_) {
+extern "C" void __cdecl mouseTP(int x, int y) {
+    SetCursorPos(x, y);
+}
+
+extern "C" void __cdecl mouseMove(int offsetX, int offsetY) {
+    POINT pt;
+    GetCursorPos(&pt);
+    int newX = pt.x + offsetX;
+    int newY = pt.y + offsetY;
+    int steps = 100;
+
+    for (int i = 0; i < steps; i++) {
+        int currX = pt.x + (offsetX * i) / steps;
+        int currY = pt.y + (offsetY * i) / steps;
+        mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, currX, currY, 0, 0);
+    }
+}
+
+extern "C" void __cdecl mouseKey(const char* btn_) {
     std::string btn = std::string(btn_);
     POINT pt;
     GetCursorPos(&pt);
