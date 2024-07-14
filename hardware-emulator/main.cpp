@@ -38,17 +38,36 @@ extern "C" void __cdecl showInputDevices() {
 }
 
 extern "C" void __cdecl startRecording(const char* name, int inputDeviceIndex) {
+    WAVEINCAPSA waveInCaps;
+    MMRESULT result = waveInGetDevCaps(inputDeviceIndex, &waveInCaps, sizeof(WAVEINCAPSA));
+    if (result!= MMSYSERR_NOERROR) {
+        std::cout << "Failed to get wave format for input device #" << inputDeviceIndex << "\n";
+        return;
+    }
+
     WAVEFORMATEX waveFormat;
-    waveFormat.wFormatTag = WAVE_FORMAT_PCM;     // PCM format
-    waveFormat.nChannels = 1;                    // Mono recording
-    waveFormat.nSamplesPerSec = 44100;           // Sample rate (e.g., 44.1 kHz)
-    waveFormat.nAvgBytesPerSec = 44100 * 2;      // Bytes per second (Sample rate * Block align)
-    waveFormat.nBlockAlign = 2;                  // Block size (Sample size * Channels)
-    waveFormat.wBitsPerSample = 16;              // Sample size (16-bit)
-    HWAVEIN hWaveIn;
-    MMRESULT result = waveInOpen(&hWaveIn, inputDeviceIndex, &waveFormat, 0, 0, CALLBACK_NULL);
-    if (!result) {
-        std::cout << "Failed to open input device #" << inputDeviceIndex << "\n";
+    // Check the supported formats
+    if (waveInCaps.dwFormats && WAVE_FORMAT_1M08) {
+        // Device supports 11.025 kHz, 8-bit, mono
+        waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+        waveFormat.nChannels = 1; // Mono
+        waveFormat.nSamplesPerSec = 11025; // 11.025 kHz
+        waveFormat.nAvgBytesPerSec = 11025; // 11025 bytes per second for 11.025 kHz, 8-bit, mono
+        waveFormat.nBlockAlign = 1; // 1 byte per sample (8-bit, mono)
+        waveFormat.wBitsPerSample = 8; // 8-bit samples
+    }
+    else if (waveInCaps.dwFormats && WAVE_FORMAT_44S16) {
+        // Device supports 44.1 kHz, 16-bit, stereo
+        waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+        waveFormat.nChannels = 2; // Stereo
+        waveFormat.nSamplesPerSec = 44100; // 44.1 kHz
+        waveFormat.nAvgBytesPerSec = 176400; // 176400 bytes per second for 44.1 kHz, 16-bit, stereo
+        waveFormat.nBlockAlign = 4; // 4 bytes per sample (16-bit, stereo)
+        waveFormat.wBitsPerSample = 16; // 16-bit samples
+    }
+    else {
+        // Device does not support any known formats
+        std::cout << "Device does not support any known formats\n";
         return;
     }
 
