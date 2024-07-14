@@ -1,0 +1,15 @@
+
+hardware-emulator/bin/Debug/hardware-emulator.dll
+hardware-emulator/bin/Debug/libhardware-emulator.a
+hardware-emulator/bin/Debug/libhardware-emulator.def
+hardware-emulator/hardware-emulator.cbp
+hardware-emulator/obj/Debug/main.o
+hardware-emulator/bin/Release/libhardware-emulator.a
+hardware-emulator/bin/Release/libhardware-emulator.def
+hardware-emulator/obj/Release/main.o
+hardware-emulator/python-example/.idea/inspectionProfiles/profiles_settings.xml
+hardware-emulator/python-example/.idea/inspectionProfiles/Project_Default.xml
+hardware-emulator/python-example/.idea/misc.xml
+hardware-emulator/python-example/.idea/modules.xml
+hardware-emulator/python-example/.idea/python-example.iml
+hardware-emulator/python-example/.idea/vcs.xml
