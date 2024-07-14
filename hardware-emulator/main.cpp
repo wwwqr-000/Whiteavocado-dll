@@ -21,8 +21,9 @@ extern "C" void __cdecl beep(const char* type) {
     }
 }
 
-void keyPress(BYTE b) {
+void keyPress(BYTE b, int ms) {
     keybd_event(b, 0, 0, 0);
+    Sleep(ms);
     keybd_event(b, 0, KEYEVENTF_KEYUP, 0);
 }
 
@@ -38,8 +39,11 @@ BYTE charToVKCode(char in) {
     return -1;
 }
 
-extern "C" void __cdecl key(const char* type_) {
+extern "C" void __cdecl key(const char* type_, int ms = 10) {
     std::string type = std::string(type_);
+    if (type == "space") {
+        keyPress(0x20, ms);
+    }
     if (type.length() > 1) {//More than 1 char
         if (type[0] == 'F') {//F keys
             BYTE baseFnum = 0x70;
@@ -53,7 +57,7 @@ extern "C" void __cdecl key(const char* type_) {
                 std::string str = std::to_string(type[1]);
                 int FIndex = (std::stoi(str) - 1);
                 BYTE num = baseFnum + FIndex;
-                keyPress(num);
+                keyPress(num, ms);
                 return;
             }
             catch (std::exception) {}
@@ -64,7 +68,7 @@ extern "C" void __cdecl key(const char* type_) {
     //Try to create VK code from alphaChar
     int alphaByte = charToVKCode(type[0]);
     if (alphaByte != -1 && alphaByte != 255) {
-        keyPress(alphaByte);
+        keyPress(alphaByte, ms);
         return;
     }
     //
@@ -73,7 +77,7 @@ extern "C" void __cdecl key(const char* type_) {
     try {
         int i = std::stoi(type);
         BYTE vk_code = VK_NUMPAD0 + i;
-        keyPress(vk_code);
+        keyPress(vk_code, ms);
         return;
     }
     catch (std::exception) {}
@@ -90,7 +94,7 @@ extern "C" void __cdecl mouseMove(int offsetX, int offsetY) {
     GetCursorPos(&pt);
     int newX = pt.x + offsetX;
     int newY = pt.y + offsetY;
-    int steps = 100;
+    int steps = 1000;
 
     for (int i = 0; i < steps; i++) {
         int currX = pt.x + (offsetX * i) / steps;
