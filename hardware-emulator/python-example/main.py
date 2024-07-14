@@ -21,6 +21,13 @@ dll.playAudio.restype = None
 dll.playAudio.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 dll.stopAudio.restype = None
 dll.stopAudio.argtypes = [ctypes.c_char_p]
+dll.startRecording.restype = None
+dll.startRecording.argtypes = [ctypes.c_char_p, ctypes.c_int]
+dll.stopRecording.restype = None
+dll.stopRecording.argtypes = [ctypes.c_char_p]
+dll.saveRecording.restype = None
+dll.saveRecording.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+dll.showInputDevices.restype = None
 
 def sprint(duration):
     dll.key(b"w", 50)
@@ -41,12 +48,18 @@ def elytra_startup():
     t1.join()
 
 #elytra_startup()
-
+dll.showInputDevices()
 dll.mouseTP(10, 10)
 dll.manageCD(b"open")
 dll.playAudio(b"./rick.mp3", b"rickroll")
 time.sleep(10)
 dll.stopAudio(b"rickroll")
+time.sleep(2)
+dll.beep(b"crit")
+dll.startRecording(b"myVoice", 0)
+time.sleep(5)
+dll.stopRecording(b"myVoice")
+dll.saveRecording(b"myVoice", b"myVoice.wav")
 
 #for x in range(100):
 #    dll.mouseKey(b"left_down")

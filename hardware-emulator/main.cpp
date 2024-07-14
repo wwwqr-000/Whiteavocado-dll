@@ -6,6 +6,10 @@
 #include <mmsystem.h>
 //
 
+//For recording
+#include <mmsystem.h>
+//
+
 //Linkers for compiler: user32, winmm
 
 std::string gsfcp(const char* in) { return std::string(in); }//Get String From Char Pointer
@@ -18,6 +22,48 @@ extern "C" void __cdecl playAudio(const char* path_, const char* name_) {
 }
 
 extern "C" void __cdecl stopAudio(const char* name) { mciSendString(("close " + gsfcp(name)).c_str(), NULL, 0, NULL); }
+
+extern "C" void __cdecl showInputDevices() {
+    UINT numDevices = waveInGetNumDevs();
+    std::cout << "Number of input devices (microphones): " << numDevices << std::endl;
+
+    for (UINT i = 0; i < numDevices; ++i) {
+        WAVEINCAPS waveCaps;
+        MMRESULT result = waveInGetDevCaps(i, &waveCaps, sizeof(WAVEINCAPS));
+        if (result == MMSYSERR_NOERROR) {
+            std::cout << "Input Device #" << i << ": " << waveCaps.szPname << std::endl;
+            // Optionally, you can print additional device information from waveCaps
+        }
+    }
+}
+
+extern "C" void __cdecl startRecording(const char* name, int inputDeviceIndex) {
+    WAVEFORMATEX waveFormat;
+    waveFormat.wFormatTag = WAVE_FORMAT_PCM;     // PCM format
+    waveFormat.nChannels = 1;                    // Mono recording
+    waveFormat.nSamplesPerSec = 44100;           // Sample rate (e.g., 44.1 kHz)
+    waveFormat.nAvgBytesPerSec = 44100 * 2;      // Bytes per second (Sample rate * Block align)
+    waveFormat.nBlockAlign = 2;                  // Block size (Sample size * Channels)
+    waveFormat.wBitsPerSample = 16;              // Sample size (16-bit)
+    HWAVEIN hWaveIn;
+    MMRESULT result = waveInOpen(&hWaveIn, inputDeviceIndex, &waveFormat, 0, 0, CALLBACK_NULL);
+    if (!result) {
+        std::cout << "Failed to open input device #" << inputDeviceIndex << "\n";
+        return;
+    }
+
+    mciSendString(("open new type waveaudio alias " + gsfcp(name)).c_str(), NULL, 0, NULL);
+    mciSendString(("record " + gsfcp(name)).c_str(), NULL, 0, NULL);
+}
+
+extern "C" void __cdecl stopRecording(const char* name) {
+    mciSendString(("stop " + gsfcp(name)).c_str(), NULL, 0, NULL);
+}
+
+extern "C" void __cdecl saveRecording(const char* name, const char* path) {
+    mciSendString(("save " + gsfcp(name) + " \"" + gsfcp(path) + "\"").c_str(), NULL, 0, NULL);
+    mciSendString(("close " + gsfcp(name)).c_str(), NULL, 0, NULL);
+}
 
 char getCDDriveLetter() {
     char drive = '\0';
