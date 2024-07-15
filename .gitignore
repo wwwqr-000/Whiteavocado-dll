@@ -49,3 +49,7 @@ listener/listener.layout
 listener/obj/Debug/main.o
 listener/obj/Release/main.o
 /listener/python-example/.idea
+file-manager/bin/Release/libfile-manager.a
+file-manager/bin/Release/libfile-manager.def
+file-manager/file-manager.cbp
+file-manager/obj/Release/main.o
