@@ -20,3 +20,17 @@ hardware-emulator/cpp-example/bin/Release/cpp-example.exe
 hardware-emulator/cpp-example/cpp-example.cbp
 hardware-emulator/cpp-example/cpp-example.depend
 hardware-emulator/cpp-example/obj/Release/main.o
+hardware-emulator/cpp-example/cpp-example.layout
+screen/bin/Release/libscreen.a
+screen/bin/Release/libscreen.def
+screen/obj/Debug/main.o
+screen/obj/Release/main.o
+screen/python-example/.idea/inspectionProfiles/profiles_settings.xml
+screen/python-example/.idea/inspectionProfiles/Project_Default.xml
+screen/python-example/.idea/misc.xml
+screen/python-example/.idea/modules.xml
+screen/python-example/.idea/python-example.iml
+screen/python-example/.idea/vcs.xml
+screen/screen.cbp
+screen/screen.depend
+screen/screen.layout
