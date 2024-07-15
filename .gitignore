@@ -16,3 +16,7 @@ hardware-emulator/python-example/.idea/vcs.xml
 hardware-emulator/hardware-emulator.layout
 hardware-emulator/hardware-emulator.depend
 hardware-emulator/python-example/.idea/.name
+hardware-emulator/cpp-example/bin/Release/cpp-example.exe
+hardware-emulator/cpp-example/cpp-example.cbp
+hardware-emulator/cpp-example/cpp-example.depend
+hardware-emulator/cpp-example/obj/Release/main.o
