@@ -66,10 +66,10 @@ time.sleep(10)
 dll.stopAudio(b"rickroll")
 time.sleep(2)
 dll.beep(b"crit")
-dll.startRecording(b"myVoice", 1)
+dll.startRecording(b"myVoice", 0)
 time.sleep(5)
 dll.stopRecording(b"myVoice")
-dll.saveRecording(b"myVoice", b"myVoice.wav")
+dll.saveRecording(b"myVoice", b"./myVoice.wav")
 
 #for x in range(100):
 #    dll.mouseKey(b"left_down")
