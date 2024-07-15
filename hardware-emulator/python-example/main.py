@@ -28,6 +28,8 @@ dll.stopRecording.argtypes = [ctypes.c_char_p]
 dll.saveRecording.restype = None
 dll.saveRecording.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 dll.showInputDevices.restype = None
+dll.getCursorPos.restype = None
+dll.getCursorPos.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
 
 def sprint(duration):
     dll.key(b"w", 50)
@@ -49,8 +51,15 @@ def elytra_startup():
 
 #elytra_startup()
 
+x = ctypes.c_int(0)
+y = ctypes.c_int(0)
+
 dll.showInputDevices()
+dll.getCursorPos(ctypes.byref(x), ctypes.byref(y))
+print("\nCursor pos before: " + f'x: {x.value}, y: {y.value}')
 dll.mouseTP(10, 10)
+dll.getCursorPos(ctypes.byref(x), ctypes.byref(y))
+print("Cursor pos after: " + f'x: {x.value}, y: {y.value}')
 dll.manageCD(b"open")
 dll.playAudio(b"./rick.mp3", b"rickroll")
 time.sleep(10)

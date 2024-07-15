@@ -10,7 +10,8 @@
 #include <mmsystem.h>
 //
 
-//Linkers for compiler: user32, winmm
+//Compiler arguments used:
+// -s -static-libstdc++ -static-libgcc -static  -luser32 -lwinmm
 
 std::string gsfcp(const char* in) { return std::string(in); }//Get String From Char Pointer
 
@@ -221,4 +222,11 @@ extern "C" void __cdecl mouseKey(const char* btn_) {
     if (btn == "right_up") { mouse_event(MOUSEEVENTF_RIGHTUP, pt.x, pt.y, 0, 0); return; }
     if (btn == "middle_down") { mouse_event(MOUSEEVENTF_MIDDLEDOWN, pt.x, pt.y, 0, 0); return; }
     if (btn == "middle_up") { mouse_event(MOUSEEVENTF_MIDDLEUP, pt.x, pt.y, 0, 0); return; }
+}
+
+extern "C" void __cdecl getCursorPos(int& x, int& y) {
+    POINT pt;
+    GetCursorPos(&pt);
+    x = pt.x;
+    y = pt.y;
 }
