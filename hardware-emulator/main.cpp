@@ -2,16 +2,17 @@
 #include <windows.h>
 #include <iostream>
 
-//For cd manager
+//For cd manager and recording
 #include <mmsystem.h>
 //
 
-//For recording
-#include <mmsystem.h>
+//For recording -> volume level
+#include <mmdeviceapi.h>
+#include <endpointvolume.h>
 //
 
 //Compiler arguments used:
-// -s -static-libstdc++ -static-libgcc -static  -luser32 -lwinmm
+// -s -static-libstdc++ -static-libgcc -static  -luser32 -lwinmm -lole32
 
 std::string gsfcp(const char* in) { return std::string(in); }//Get String From Char Pointer
 
@@ -33,29 +34,73 @@ extern "C" void __cdecl showInputDevices() {
         MMRESULT result = waveInGetDevCaps(i, &waveCaps, sizeof(WAVEINCAPS));
         if (result == MMSYSERR_NOERROR) {
             std::cout << "Input Device #" << i << ": " << waveCaps.szPname << std::endl;
-            // Optionally, you can print additional device information from waveCaps
         }
     }
 }
 
-extern "C" void __cdecl startRecording(const char* name, int inputDeviceIndex) {
+bool setRecordingVolume(float volumeLevel, bool debug) {
+    HRESULT hr = CoInitialize(NULL);
+    if (FAILED(hr) && debug) {
+        std::cout << "Failed to initialize COM library\n";
+        return false;
+    }
+
+    IMMDeviceEnumerator* deviceEnumerator = NULL;
+    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), (LPVOID*)&deviceEnumerator);
+    if (FAILED(hr) && debug) {
+        std::cout << "Failed to create device enumerator\n";
+        CoUninitialize();
+        return false;
+    }
+
+    IMMDevice* defaultDevice = NULL;
+    hr = deviceEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &defaultDevice);
+    deviceEnumerator->Release();
+    if (FAILED(hr) && debug) {
+        std::cout << "Failed to get default audio endpoint\n";
+        CoUninitialize();
+        return false;
+    }
+
+    IAudioEndpointVolume* endpointVolume = NULL;
+    hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID*)&endpointVolume);
+    defaultDevice->Release();
+    if (FAILED(hr) && debug) {
+        std::cout << "Failed to activate audio endpoint volume\n";
+        CoUninitialize();
+        return false;
+    }
+
+    hr = endpointVolume->SetMasterVolumeLevelScalar(volumeLevel, NULL);
+    endpointVolume->Release();
+    CoUninitialize();
+
+    if (FAILED(hr) && debug) {
+        std::cout << "Failed to set master volume level\n";
+        return false;
+    }
+
+    return true;
+}
+
+extern "C" void __cdecl startRecording(const char* name, int inputDeviceIndex, bool debug = false) {
     WAVEINCAPSA waveInCaps;
     MMRESULT result = waveInGetDevCaps(inputDeviceIndex, &waveInCaps, sizeof(WAVEINCAPSA));
-    if (result!= MMSYSERR_NOERROR) {
+    if (result!= MMSYSERR_NOERROR && debug) {
         std::cout << "Failed to get wave format for input device #" << inputDeviceIndex << "\n";
         return;
     }
 
     WAVEFORMATEX waveFormat;
     // Check the supported formats
-    if (waveInCaps.dwFormats && WAVE_FORMAT_1M08) {
-        // Device supports 11.025 kHz, 8-bit, mono
+    if (waveInCaps.dwFormats && WAVE_FORMAT_PCM) {
+        // Device supports 48 kHz, 24-bit, stereo
         waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-        waveFormat.nChannels = 1; // Mono
-        waveFormat.nSamplesPerSec = 11025; // 11.025 kHz
-        waveFormat.nAvgBytesPerSec = 11025; // 11025 bytes per second for 11.025 kHz, 8-bit, mono
-        waveFormat.nBlockAlign = 1; // 1 byte per sample (8-bit, mono)
-        waveFormat.wBitsPerSample = 8; // 8-bit samples
+        waveFormat.nChannels = 2; // Stereo
+        waveFormat.nSamplesPerSec = 48000; // 48 kHz
+        waveFormat.nAvgBytesPerSec = 288000; // 288000 bytes per second for 48 kHz, 24-bit, stereo
+        waveFormat.nBlockAlign = 6; // 6 bytes per sample (24-bit, stereo)
+        waveFormat.wBitsPerSample = 24; // 24-bit samples
     }
     else if (waveInCaps.dwFormats && WAVE_FORMAT_44S16) {
         // Device supports 44.1 kHz, 16-bit, stereo
@@ -66,11 +111,28 @@ extern "C" void __cdecl startRecording(const char* name, int inputDeviceIndex) {
         waveFormat.nBlockAlign = 4; // 4 bytes per sample (16-bit, stereo)
         waveFormat.wBitsPerSample = 16; // 16-bit samples
     }
+    else if (waveInCaps.dwFormats && WAVE_FORMAT_1M08) {
+        // Device supports 11.025 kHz, 8-bit, mono
+        waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+        waveFormat.nChannels = 1; // Mono
+        waveFormat.nSamplesPerSec = 11025; // 11.025 kHz
+        waveFormat.nAvgBytesPerSec = 11025; // 11025 bytes per second for 11.025 kHz, 8-bit, mono
+        waveFormat.nBlockAlign = 1; // 1 byte per sample (8-bit, mono)
+        waveFormat.wBitsPerSample = 8; // 8-bit samples
+    }
     else {
-        // Device does not support any known formats
-        std::cout << "Device does not support any known formats\n";
+        if (debug) {
+            std::cout << "Device does not support any known formats\n";
+        }
         return;
     }
+    //
+
+    //Set recording volume level
+    if (!setRecordingVolume(1.0, debug) && debug) {
+        std::cout << "Failed to set recording volume. Skipping...\n";
+    }
+    //
 
     mciSendString(("open new type waveaudio alias " + gsfcp(name)).c_str(), NULL, 0, NULL);
     mciSendString(("record " + gsfcp(name)).c_str(), NULL, 0, NULL);
@@ -192,7 +254,6 @@ extern "C" void __cdecl key(const char* type_, int ms = 10) {
     }
     catch (std::exception) {}
     //
-    beep("click");
 }
 
 extern "C" void __cdecl mouseTP(int x, int y) {
