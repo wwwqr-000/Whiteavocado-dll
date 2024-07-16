@@ -37,3 +37,96 @@ extern "C" void __cdecl getCursorPos(int& x, int& y) {
     x = pt.x;
     y = pt.y;
 }
+
+extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, const char* result) {
+    int MB_icon, MB_button;
+    std::string button = std::string(button_);
+    std::string icon = std::string(icon_);
+
+    if (button == "ari") {
+        MB_button = MB_ABORTRETRYIGNORE;
+    }
+    else if (button == "ctc") {
+        MB_button = MB_CANCELTRYCONTINUE;
+    }
+    else if (button == "h") {
+        MB_button = MB_HELP;
+    }
+    else if (button == "o") {
+        MB_button = MB_OK;
+    }
+    else if (button == "oc") {
+        MB_button = MB_OKCANCEL;
+    }
+    else if (button == "rc") {
+        MB_button = MB_RETRYCANCEL;
+    }
+    else if (button == "yn") {
+        MB_button = MB_YESNO;
+    }
+    else if (button == "ync") {
+        MB_button = MB_YESNOCANCEL;
+    }
+
+    if (icon == "!") {
+        MB_icon = MB_ICONEXCLAMATION;
+    }
+    else if (icon == "w") {
+        MB_icon = MB_ICONWARNING;
+    }
+    else if (icon == "i") {
+        MB_icon = MB_ICONINFORMATION;
+    }
+    else if (icon == "a") {
+        MB_icon = MB_ICONASTERISK;
+    }
+    else if (icon == "q") {
+        MB_icon = MB_ICONQUESTION;
+    }
+    else if (icon == "s") {
+        MB_icon = MB_ICONSTOP;
+    }
+    else if (icon == "e") {
+        MB_icon = MB_ICONERROR;
+    }
+
+    int resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+
+    switch (resVal) {
+        case 1:
+            result = "ok";
+        break;
+        case 2:
+            result = "cancel";
+        break;
+        case 3:
+            result = "abort";
+        break;
+        case 4:
+            result = "retry";
+        break;
+        case 5:
+            result = "ignore";
+        break;
+        case 6:
+            result = "yes";
+        break;
+        case 7:
+            result = "no";
+        break;
+        case 8:
+            result = "close";
+        break;
+        case 9:
+            result = "help";
+        break;
+        case 10:
+            result = "tryagain";
+        break;
+        case 11:
+            result = "continue";
+        break;
+        default:
+            result = "empty";
+    }
+}
