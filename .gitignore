@@ -53,3 +53,9 @@ file-manager/bin/Release/libfile-manager.a
 file-manager/bin/Release/libfile-manager.def
 file-manager/file-manager.cbp
 file-manager/obj/Release/main.o
+file-manager/python-example/.idea/inspectionProfiles/profiles_settings.xml
+file-manager/python-example/.idea/misc.xml
+file-manager/python-example/.idea/modules.xml
+file-manager/python-example/.idea/python-example.iml
+file-manager/python-example/.idea/vcs.xml
+file-manager/file-manager.layout
