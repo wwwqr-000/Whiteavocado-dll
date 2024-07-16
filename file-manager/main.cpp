@@ -10,11 +10,11 @@
 #include <shlwapi.h>
 //
 
-//For exec
-#include <tchar.h>
+//For selectFolder
+#include <shlobj.h>
 //
 
-//Compiler flags: -s -static-libstdc++ -static-libgcc -static  -luser32 -lshlwapi
+//Compiler command: g++.exe -shared -Wl,--output-def=bin\Release\libfile-manager.def -Wl,--out-implib=bin\Release\libfile-manager.a -Wl,--dll  obj\Release\main.o  -o bin\Release\file-manager.dll -s -static-libstdc++ -static-libgcc -static  -luser32 -lshlwapi -lole32
 
 std::string gsfcp(const char* s) { return std::string(s); }
 
@@ -39,6 +39,33 @@ extern "C" const char* __cdecl getSelfName() {
     GetModuleFileName(NULL, filename, MAX_PATH);
     TCHAR *filename_only = PathFindFileName(filename);
     return std::string(filename_only).c_str();
+}
+
+extern "C" const char * __cdecl selectFolder(const char* description) {
+    TCHAR szDir[MAX_PATH];
+
+    BROWSEINFO bi;
+    ZeroMemory(&bi, sizeof(bi));
+    bi.hwndOwner = NULL;
+    bi.ulFlags = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS;
+    bi.lpszTitle = TEXT(description);
+    LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
+
+    if (!pidl) { return "error"; }
+
+    SHGetPathFromIDList(pidl, szDir);
+    CoTaskMemFree(pidl);
+
+    for (char& c : szDir) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+
+    std::string path = std::string(szDir);
+    path += "/";
+    return path.c_str();
+
 }
 
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }
