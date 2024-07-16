@@ -34,15 +34,15 @@ std::string getUName() {
     return std::string(username);
 }
 
-std::string getSelfName() {
+extern "C" const char* __cdecl getSelfName() {
     TCHAR filename[MAX_PATH];
     GetModuleFileName(NULL, filename, MAX_PATH);
     TCHAR *filename_only = PathFindFileName(filename);
-    return std::string(filename_only);
+    return std::string(filename_only).c_str();
 }
 
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }
-extern "C" bool __cdecl isStartup() { return (access_(getSelfName() + ":startup")); }
+extern "C" bool __cdecl isStartup() { return (access_(std::string(getSelfName()) + ":startup")); }
 
 extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//Use a full path (From drive letter to filder with '/' at the end!)
     std::string self = getSelfName();
