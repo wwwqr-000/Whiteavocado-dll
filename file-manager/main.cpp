@@ -14,7 +14,7 @@
 #include <shlobj.h>
 //
 
-//Compiler command: g++.exe -shared -Wl,--output-def=bin\Release\libfile-manager.def -Wl,--out-implib=bin\Release\libfile-manager.a -Wl,--dll  obj\Release\main.o  -o bin\Release\file-manager.dll -s -static-libstdc++ -static-libgcc -static  -luser32 -lshlwapi -lole32
+//Compiler linkers: -s -static-libstdc++ -static-libgcc -static  -luser32 -lshlwapi -lole32 -lcomdlg32
 
 std::string gsfcp(const char* s) { return std::string(s); }
 
@@ -66,6 +66,29 @@ extern "C" const char * __cdecl selectFolder(const char* description) {
     path += "/";
     return path.c_str();
 
+}
+
+extern "C" const char * __cdecl selectFile(const char* description) {
+    OPENFILENAME ofn;
+    char szFile[MAX_PATH] = "";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrTitle = description;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+
+    if (GetOpenFileName(&ofn)) {
+        for (char& c : szFile) {
+            if (c == '\\') {
+                c = '/';
+            }
+        }
+        return strdup(szFile);
+    }
+    return "error";
 }
 
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }

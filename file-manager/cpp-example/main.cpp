@@ -11,6 +11,7 @@ int main() {
     CPV const getSelfName = reinterpret_cast<CPV>(GetProcAddress(FMDll, "getSelfName"));
     CPV const getUName = reinterpret_cast<CPV>(GetProcAddress(FMDll, "getUName"));
     CC const selectFolder = reinterpret_cast<CC>(GetProcAddress(FMDll, "selectFolder"));
+    CC const selectFile = reinterpret_cast<CC>(GetProcAddress(FMDll, "selectFile"));
 
     int res = moveSelfStartup("C:/full/file/path/", "file-manager");
 
@@ -19,6 +20,7 @@ int main() {
     std::cout << "Username: " << std::string(getUName()) << "\n";
     Sleep(2000);
     std::cout << "Folder path: " << std::string(selectFolder("Select a folder")) << "\n";
+    std::cout << "File path: " << std::string(selectFile("Select a file")) << "\n";
 
     Sleep(10000);
 
