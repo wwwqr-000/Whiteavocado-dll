@@ -38,7 +38,7 @@ extern "C" void __cdecl getCursorPos(int& x, int& y) {
     y = pt.y;
 }
 
-extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, const char* result) {
+extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, std::string& result) {
     int MB_icon, MB_button;
     std::string button = std::string(button_);
     std::string icon = std::string(icon_);
