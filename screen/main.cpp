@@ -90,41 +90,29 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
         MB_icon = MB_ICONERROR;
     }
 
-    int resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+    INT_PTR resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
 
     switch (resVal) {
-        case 1:
+        case IDOK:
             result = "ok";
         break;
-        case 2:
+        case IDCANCEL:
             result = "cancel";
         break;
-        case 3:
+        case IDABORT:
             result = "abort";
         break;
-        case 4:
+        case IDRETRY:
             result = "retry";
         break;
-        case 5:
+        case IDIGNORE:
             result = "ignore";
         break;
-        case 6:
+        case IDYES:
             result = "yes";
         break;
-        case 7:
+        case IDNO:
             result = "no";
-        break;
-        case 8:
-            result = "close";
-        break;
-        case 9:
-            result = "help";
-        break;
-        case 10:
-            result = "tryagain";
-        break;
-        case 11:
-            result = "continue";
         break;
         default:
             result = "empty";
