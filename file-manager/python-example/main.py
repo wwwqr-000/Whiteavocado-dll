@@ -16,7 +16,7 @@ file_manager = ctypes.CDLL(dll_path)
 file_manager.moveSelfStartup.restype = ctypes.c_int
 file_manager.moveSelfStartup.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 
-print(file_manager.moveSelfStartup(b"C:/Users/za2qa/Desktop/background-apps/Whiteavocado-dll/file-manager/python-example/marf/", b"File-Test"))
+print(file_manager.moveSelfStartup(b"C:/location/", b"File-Test"))
 os.system("start installer.cmd")
 time.sleep(5)
 os.remove("installer.cmd")
