@@ -62,7 +62,7 @@ extern "C" const char * __cdecl selectFolder(const char* description) {
         }
     }
 
-    std::string path = std::string(szDir);
+    static std::string path = std::string(szDir);
     path += "/";
     return path.c_str();
 
