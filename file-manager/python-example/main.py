@@ -17,9 +17,6 @@ file_manager.moveSelfStartup.restype = ctypes.c_int
 file_manager.moveSelfStartup.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 
 print(file_manager.moveSelfStartup(b"C:/location/", b"File-Test"))
-os.system("start installer.cmd")
-time.sleep(5)
-os.remove("installer.cmd")
 time.sleep(10)
 
 #file_manager.access.restype = ctypes.c_bool
