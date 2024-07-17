@@ -27,6 +27,49 @@ extern "C" void __cdecl drawLine(int xStart, int yStart, int xEnd, int yEnd, int
     if (debug) { std::cout << "Drew line.\n"; }
 }
 
+extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int height) {
+    HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, imgPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    if (!hBitmap) { return 1; }
+
+    HDC hdcScreen = GetDC(NULL);
+    if (!hdcScreen) {
+        DeleteObject(hBitmap);
+        return 2;
+    }
+
+    BITMAP bm;
+    int retVal = GetObject(hBitmap, sizeof(BITMAP), &bm);
+    if (retVal != sizeof(BITMAP)) {
+        DeleteObject(hBitmap);
+        ReleaseDC(NULL, hdcScreen);
+        return 3;
+    }
+
+    HDC hdcMem = CreateCompatibleDC(hdcScreen);
+    if (!hdcMem) {
+        DeleteObject(hBitmap);
+        ReleaseDC(NULL, hdcScreen);
+        return 4;
+    }
+
+    HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
+    if (!oldBitmap) {
+        DeleteDC(hdcMem);
+        DeleteObject(hBitmap);
+        ReleaseDC(NULL, hdcScreen);
+        return 5;
+    }
+
+    BitBlt(hdcScreen, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+
+    SelectObject(hdcMem, oldBitmap);
+    DeleteDC(hdcMem);
+    DeleteObject(hBitmap);
+    ReleaseDC(NULL, hdcScreen);
+
+    return 0;
+}
+
 extern "C" void __cdecl cls() {
     std::cout << "No working cls at the time. (W.I.P)\n";
 }

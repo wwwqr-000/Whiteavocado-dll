@@ -74,3 +74,5 @@ screen/cpp-example/cpp-example.cbp
 screen/cpp-example/cpp-example.depend
 screen/cpp-example/cpp-example.layout
 screen/cpp-example/obj/Debug/main.o
+screen/cpp-example/bin/Release/cpp-example.exe
+screen/cpp-example/obj/Release/main.o
