@@ -41,14 +41,14 @@ extern "C" const char* __cdecl getSelfName() {
     return std::string(filename_only).c_str();
 }
 
-extern "C" const char * __cdecl selectFolder(const char* description) {
+extern "C" std::string __cdecl selectFolder(std::string description) {
     TCHAR szDir[MAX_PATH];
 
     BROWSEINFO bi;
     ZeroMemory(&bi, sizeof(bi));
     bi.hwndOwner = NULL;
     bi.ulFlags = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS;
-    bi.lpszTitle = TEXT(description);
+    bi.lpszTitle = TEXT(description.c_str());
     LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
     if (!pidl) { return "error"; }
@@ -62,13 +62,14 @@ extern "C" const char * __cdecl selectFolder(const char* description) {
         }
     }
 
-    static std::string path = std::string(szDir);
-    path += "/";
-    return path.c_str();
-
+    std::string path = szDir;
+    if (path.back() != '/') {
+        path += "/";
+    }
+    return path;
 }
 
-extern "C" const char * __cdecl selectFile(const char* description) {
+extern "C" const char* __cdecl selectFile(const char* description) {
     OPENFILENAME ofn;
     char szFile[MAX_PATH] = "";
 
