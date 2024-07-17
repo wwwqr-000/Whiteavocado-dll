@@ -69,3 +69,8 @@ file-manager/cpp-example/cpp-example.layout
 file-manager/file-manager.depend
 screen/python-example/.idea/.name
 file-manager/obj/Debug/main.o
+screen/cpp-example/bin/Debug/cpp-example.exe
+screen/cpp-example/cpp-example.cbp
+screen/cpp-example/cpp-example.depend
+screen/cpp-example/cpp-example.layout
+screen/cpp-example/obj/Debug/main.o

@@ -38,6 +38,16 @@ extern "C" void __cdecl getCursorPos(int& x, int& y) {
     y = pt.y;
 }
 
+extern "C" void __cdecl getPixelValue(int x, int y, int& r, int& g, int& b) {
+    HDC hdc = GetDC(NULL);
+    COLORREF color = GetPixel(hdc, x, y);
+    ReleaseDC(NULL, hdc);
+
+    r = GetRValue(color);
+    g = GetGValue(color);
+    b = GetBValue(color);
+}
+
 extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, std::string& result) {
     int MB_icon, MB_button;
     std::string button = std::string(button_);
