@@ -20,3 +20,4 @@
 <li>DrawBMP (on screen, no window)</li>
 <li>Get pixel value (on screen, no window)</li>
 <li>Message box</li>
+<li>Take screenshot</li>
