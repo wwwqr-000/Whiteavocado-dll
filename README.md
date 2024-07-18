@@ -1,4 +1,4 @@
-<h1>Some nice to have dll's (C based, made in c++)</h1>
+<h1>Whiteavocado dll's</h1>
 
 <h2>Features</h2>
 
