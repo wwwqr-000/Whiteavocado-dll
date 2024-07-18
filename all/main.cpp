@@ -597,3 +597,62 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     }
 }
 //
+
+extern "C" bool __cdecl takeScreenshot(const char* fullOutPath) {
+    RECT box;
+    GetWindowRect(GetDesktopWindow(), &box);
+    int width = box.right - box.left;
+    int height = box.bottom - box.top;
+
+    HDC hdc = GetDC(NULL);
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP bitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, bitmap);
+
+    BitBlt(hdcMem, 0, 0, width, height, hdc, 0, 0, SRCCOPY);
+
+    BITMAPFILEHEADER bfHeader;
+    BITMAPINFOHEADER biHeader;
+    biHeader.biSize = sizeof(BITMAPINFOHEADER);
+    biHeader.biWidth = width;
+    biHeader.biHeight = height;
+    biHeader.biPlanes = 1;
+    biHeader.biBitCount = 24;
+    biHeader.biCompression = BI_RGB;
+    biHeader.biSizeImage = ((width * 3 + 3) & ~3) * height;
+    biHeader.biXPelsPerMeter = 0;
+    biHeader.biYPelsPerMeter = 0;
+    biHeader.biClrUsed = 0;
+    biHeader.biClrImportant = 0;
+
+    bfHeader.bfType = 0x4D42;//BMP
+    bfHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + biHeader.biSizeImage;
+    bfHeader.bfReserved1 = 0;
+    bfHeader.bfReserved2 = 0;
+    bfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    HANDLE file = CreateFileA(fullOutPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        DeleteObject(bitmap);
+        DeleteDC(hdcMem);
+        ReleaseDC(NULL, hdc);
+        return false;
+    }
+
+    DWORD bytesWritten;
+    WriteFile(file, &bfHeader, sizeof(BITMAPFILEHEADER), &bytesWritten, NULL);
+    WriteFile(file, &biHeader, sizeof(BITMAPINFOHEADER), &bytesWritten, NULL);
+
+    unsigned char* pixels = new unsigned char[biHeader.biSizeImage];
+    GetDIBits(hdcMem, bitmap, 0, height, pixels, (BITMAPINFO*)&biHeader, DIB_RGB_COLORS);
+
+    WriteFile(file, pixels, biHeader.biSizeImage, &bytesWritten, NULL);
+    delete[] pixels;
+    CloseHandle(file);
+
+    DeleteObject(bitmap);
+    DeleteDC(hdcMem);
+    ReleaseDC(NULL, hdc);
+
+    return true;
+}
