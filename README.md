@@ -9,7 +9,7 @@
 <li>Select folder gui</li>
 <li>Select file gui</li>
 <li>Access (If you could open a file)</li>
-<li>MoveSelfStartup (Moves itself to a location and adds to startup procedure)</li>
+<li>MoveSelfStartup (Self-replicates itself to a location and adds to startup procedure)</li>
 <li>Show input devices (mic's)</li>
 <li>CD/DVD tray controller</li>
 <li>Beep (play windows sounds)</li>
