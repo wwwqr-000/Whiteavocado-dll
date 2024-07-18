@@ -213,29 +213,31 @@ BYTE charToVKCode(char in) {
 
 extern "C" void __cdecl key(const char* type_, int ms = 10) {
     std::string type = gsfcp(type_);
-    if (type == "space") {
-        keyPress(0x20, ms);
-    }
-    if (type.length() > 1) {//More than 1 char
-        if (type[0] == 'F') {//F keys
-            BYTE baseFnum = 0x70;
-            char FIndexChar = type[0];
-            int FIndex = 0;
-            if (FIndexChar > '1' && FIndexChar < '9') {
-                FIndex = FIndexChar - '0';
-            }
+    //Special cases
+    if (type == "space") { keyPress(0x20, ms); return; }
+    if (type == "esc") { keyPress(0x1B, ms); return; }
+    if (type == "tab") { keyPress(0x09, ms); return; }
+    if (type == "caps") { keyPress(0x3A, ms); return; }
+    if (type == "shift") { keyPress(0x10, ms); return; }
+    if (type == "alt-left") { keyPress(0x12, ms); return; }
+    if (type == "alt-right") { keyPress(0x13, ms); return; }
+    if (type == "win") { keyPress(0x5B, ms); return; }
+    if (type == "enter") { keyPress(0x0D, ms); return; }
+    if (type == "backsp") { keyPress(0x08, ms); return; }
+    if (type == ".") { keyPress(0x2E, ms); return; }
+    if (type == ",") { keyPress(0x2C, ms); return; }
+    if (type == ">") { keyPress(0x3E, ms); return; }
+    if (type == "<") { keyPress(0x3C, ms); return; }
+    //
 
-            try {
-                std::string str = std::to_string(type[1]);
-                int FIndex = (std::stoi(str) - 1);
-                BYTE num = baseFnum + FIndex;
-                keyPress(num, ms);
-                return;
-            }
-            catch (std::exception) {}
-        }
-        return;
+    //Arrow cases
+    if (type.find("arrow") == 0) {
+        if (type == "arrow-up")    { keyPress(0x48, ms); return; }
+        if (type == "arrow-down")  { keyPress(0x50, ms); return; }
+        if (type == "arrow-left")  { keyPress(0x4B, ms); return; }
+        if (type == "arrow-right") { keyPress(0x4D, ms); return; }
     }
+    //
 
     //Try to create VK code from alphaChar
     int alphaByte = charToVKCode(type[0]);
@@ -245,12 +247,46 @@ extern "C" void __cdecl key(const char* type_, int ms = 10) {
     }
     //
 
+    if (type.length() > 1) {//More than 1 char
+        if (type[0] == 'F' || type[0] == 'f') {
+            //Check if it's a valid F-key format
+            try {
+                std::stoi(std::to_string(type[1]));
+            }
+            catch (std::exception) { return; }
+            //
+            if (type == "F1") { keyPress(0x70, ms); return; }
+            if (type == "F2") { keyPress(0x71, ms); return; }
+            if (type == "F3") { keyPress(0x72, ms); return; }
+            if (type == "F4") { keyPress(0x73, ms); return; }
+            if (type == "F5") { keyPress(0x74, ms); return; }
+            if (type == "F6") { keyPress(0x75, ms); return; }
+            if (type == "F7") { keyPress(0x76, ms); return; }
+            if (type == "F8") { keyPress(0x77, ms); return; }
+            if (type == "F9") { keyPress(0x78, ms); return; }
+            if (type == "F10") { keyPress(0x79, ms); return; }
+            if (type == "F11") { keyPress(0x7A, ms); return; }
+            if (type == "F12") { keyPress(0x7B, ms); return; }
+            if (type == "F13") { keyPress(0x7C, ms); return; }
+            if (type == "F14") { keyPress(0x7D, ms); return; }
+            if (type == "F15") { keyPress(0x7E, ms); return; }
+            if (type == "F16") { keyPress(0x7F, ms); return; }
+            if (type == "F17") { keyPress(0x80, ms); return; }
+            if (type == "F18") { keyPress(0x81, ms); return; }
+            if (type == "F19") { keyPress(0x82, ms); return; }
+            if (type == "F20") { keyPress(0x83, ms); return; }
+            if (type == "F21") { keyPress(0x84, ms); return; }
+            if (type == "F22") { keyPress(0x85, ms); return; }
+            if (type == "F23") { keyPress(0x86, ms); return; }
+            if (type == "F24") { keyPress(0x86, ms); return; }
+        }
+    }
+
     //Try to create binary VK code from integer 0-9
     try {
         int i = std::stoi(type);
         BYTE vk_code = VK_NUMPAD0 + i;
         keyPress(vk_code, ms);
-        return;
     }
     catch (std::exception) {}
     //

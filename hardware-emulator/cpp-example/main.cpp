@@ -33,6 +33,16 @@ int main() {
     Sleep(5000);
     stopAudio("rickroll");
     beep("click");
+    Sleep(2000);
+    key("win", 10);
+    Sleep(750);
+    key("x", 10);
+    key("d", 10);
+    key("space", 10);
+    key("<", 10);
+    key(">", 10);
+    Sleep(100);
+    key("enter", 10);
 
     FreeLibrary(HEDll);
     return 0;
