@@ -76,3 +76,9 @@ screen/cpp-example/cpp-example.layout
 screen/cpp-example/obj/Debug/main.o
 screen/cpp-example/bin/Release/cpp-example.exe
 screen/cpp-example/obj/Release/main.o
+all/all.cbp
+all/all.depend
+all/bin/Release/liball.a
+all/bin/Release/liball.def
+all/main.h
+all/obj/Release/main.o
