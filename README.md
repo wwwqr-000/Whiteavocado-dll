@@ -19,4 +19,4 @@
 <li>Draw line (on screen, no window)</li>
 <li>DrawBMP (on screen, no window)</li>
 <li>Get pixel value (on screen, no window)</li>
-<li>message box</li>
+<li>Message box</li>
