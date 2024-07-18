@@ -16,8 +16,8 @@ int main() {
     int res = moveSelfStartup("C:/full/file/path/", "file-manager");
 
     std::cout << "Moving to startup status: " << std::to_string(res) << "\n";
-    std::cout << "Self name: " << std::string(getSelfName()) << "\n";
-    std::cout << "Username: " << std::string(getUName()) << "\n";
+    std::cout << "Self name: " << getSelfName() << "\n";
+    std::cout << "Username: " << getUName() << "\n";
     Sleep(2000);
     std::cout << "Folder path: " << std::string(selectFolder("Select a folder")) << "\n";
     std::cout << "File path: " << std::string(selectFile("Select a file")) << "\n";

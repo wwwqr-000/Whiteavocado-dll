@@ -28,17 +28,24 @@ bool access_(std::string path) {
 }
 
 extern "C" const char* __cdecl getUName() {
-    TCHAR username[UNLEN + 1];
+    WCHAR username[UNLEN + 1];
     DWORD username_len = UNLEN + 1;
-    GetUserName(username, &username_len);
-    return std::string(username).c_str();
+    GetUserNameW(username, &username_len);
+
+    int requiredSize = WideCharToMultiByte(CP_UTF8, 0, username, -1, nullptr, 0, nullptr, nullptr);
+    char* narrowUsername = new char[requiredSize];
+    WideCharToMultiByte(CP_UTF8, 0, username, -1, narrowUsername, requiredSize, nullptr, nullptr);
+
+    return narrowUsername;
 }
 
 extern "C" const char* __cdecl getSelfName() {
+    static std::string fn;
     TCHAR filename[MAX_PATH];
     GetModuleFileName(NULL, filename, MAX_PATH);
     TCHAR *filename_only = PathFindFileName(filename);
-    return std::string(filename_only).c_str();
+    fn = filename_only;
+    return fn.c_str();
 }
 
 extern "C" std::string __cdecl selectFolder(std::string description) {
