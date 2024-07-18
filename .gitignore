@@ -82,3 +82,4 @@ all/bin/Release/liball.a
 all/bin/Release/liball.def
 all/main.h
 all/obj/Release/main.o
+all/all.layout
