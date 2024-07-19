@@ -31,6 +31,8 @@ jobs:
           
       - name: Run test case
         shell: cmd
-        run: main.exe
+        run: |
+          cd $Env:GITHUB_WORKSPACE/tests
+          main.exe
 
 
