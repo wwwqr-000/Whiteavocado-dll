@@ -5,7 +5,7 @@ int main() {
     HMODULE const FMDll = LoadLibraryExW(L"../bin/Release/file-manager.dll", nullptr, 0);
     using IntDCP = int (__cdecl*)(const char*, const char*);
     using CPV = const char* (__cdecl*)();
-    using CC = const char* (__cdecl*)(const char*);
+    using CC = std::string (__cdecl*)(std::string);
 
     IntDCP const moveSelfStartup = reinterpret_cast<IntDCP>(GetProcAddress(FMDll, "moveSelfStartup"));
     CPV const getSelfName = reinterpret_cast<CPV>(GetProcAddress(FMDll, "getSelfName"));
@@ -19,8 +19,8 @@ int main() {
     std::cout << "Self name: " << getSelfName() << "\n";
     std::cout << "Username: " << getUName() << "\n";
     Sleep(2000);
-    std::cout << "Folder path: " << std::string(selectFolder("Select a folder")) << "\n";
-    std::cout << "File path: " << std::string(selectFile("Select a file")) << "\n";
+    std::cout << "Folder path: " << selectFolder("Select a folder") << "\n";
+    std::cout << "File path: " << selectFile("Select a file") << "\n";
 
     Sleep(10000);
 

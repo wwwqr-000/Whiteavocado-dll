@@ -55,7 +55,8 @@ extern "C" std::string __cdecl selectFolder(std::string description) {
     ZeroMemory(&bi, sizeof(bi));
     bi.hwndOwner = NULL;
     bi.ulFlags = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS;
-    bi.lpszTitle = TEXT(description.c_str());
+    std::string descriptionA = description;
+    bi.lpszTitle = descriptionA.c_str();
     LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
     if (!pidl) { return "error"; }
@@ -76,7 +77,8 @@ extern "C" std::string __cdecl selectFolder(std::string description) {
     return path;
 }
 
-extern "C" const char* __cdecl selectFile(const char* description) {
+extern "C" std::string __cdecl selectFile(std::string description) {
+    std::string fPath;
     OPENFILENAME ofn;
     char szFile[MAX_PATH] = "";
 
@@ -85,7 +87,7 @@ extern "C" const char* __cdecl selectFile(const char* description) {
     ofn.hwndOwner = NULL;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrTitle = description;
+    ofn.lpstrTitle = description.c_str();
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
     if (GetOpenFileName(&ofn)) {
@@ -94,7 +96,8 @@ extern "C" const char* __cdecl selectFile(const char* description) {
                 c = '/';
             }
         }
-        return strdup(szFile);
+        std::string fPath(szFile);
+        return fPath;
     }
     return "error";
 }
