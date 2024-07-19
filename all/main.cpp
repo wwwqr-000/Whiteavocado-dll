@@ -38,17 +38,24 @@ bool access_(std::string path) {
 }
 
 extern "C" const char* __cdecl getUName() {
-    TCHAR username[UNLEN + 1];
+    WCHAR username[UNLEN + 1];
     DWORD username_len = UNLEN + 1;
-    GetUserName(username, &username_len);
-    return std::string(username).c_str();
+    GetUserNameW(username, &username_len);
+
+    int requiredSize = WideCharToMultiByte(CP_UTF8, 0, username, -1, nullptr, 0, nullptr, nullptr);
+    char* narrowUsername = new char[requiredSize];
+    WideCharToMultiByte(CP_UTF8, 0, username, -1, narrowUsername, requiredSize, nullptr, nullptr);
+
+    return narrowUsername;
 }
 
 extern "C" const char* __cdecl getSelfName() {
+    static std::string fn;
     TCHAR filename[MAX_PATH];
     GetModuleFileName(NULL, filename, MAX_PATH);
     TCHAR *filename_only = PathFindFileName(filename);
-    return std::string(filename_only).c_str();
+    fn = filename_only;
+    return fn.c_str();
 }
 
 extern "C" std::string __cdecl selectFolder(std::string description) {
@@ -58,7 +65,8 @@ extern "C" std::string __cdecl selectFolder(std::string description) {
     ZeroMemory(&bi, sizeof(bi));
     bi.hwndOwner = NULL;
     bi.ulFlags = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS;
-    bi.lpszTitle = TEXT(description.c_str());
+    std::string descriptionA = description;
+    bi.lpszTitle = descriptionA.c_str();
     LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
     if (!pidl) { return "error"; }
@@ -79,7 +87,8 @@ extern "C" std::string __cdecl selectFolder(std::string description) {
     return path;
 }
 
-extern "C" const char* __cdecl selectFile(const char* description) {
+extern "C" std::string __cdecl selectFile(std::string description) {
+    std::string fPath;
     OPENFILENAME ofn;
     char szFile[MAX_PATH] = "";
 
@@ -88,7 +97,7 @@ extern "C" const char* __cdecl selectFile(const char* description) {
     ofn.hwndOwner = NULL;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrTitle = description;
+    ofn.lpstrTitle = description.c_str();
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
     if (GetOpenFileName(&ofn)) {
@@ -97,7 +106,8 @@ extern "C" const char* __cdecl selectFile(const char* description) {
                 c = '/';
             }
         }
-        return strdup(szFile);
+        std::string fPath(szFile);
+        return fPath;
     }
     return "error";
 }
