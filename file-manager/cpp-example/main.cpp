@@ -17,7 +17,7 @@ int main() {
 
     std::cout << "Moving to startup status: " << std::to_string(res) << "\n";
     std::cout << "Self name: " << getSelfName() << "\n";
-    std::cout << "Username: " << getUName() << "\n";
+    std::cout << "Username: " << std::string(getUName()) << "\n";
     Sleep(2000);
     std::cout << "Folder path: " << selectFolder("Select a folder") << "\n";
     std::cout << "File path: " << selectFile("Select a file") << "\n";
