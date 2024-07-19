@@ -32,7 +32,7 @@ jobs:
       - name: Run test case
         shell: cmd
         run: |
-          cd $Env:GITHUB_WORKSPACE/tests
+          cd tests
           dir
           tests/main.exe
 
