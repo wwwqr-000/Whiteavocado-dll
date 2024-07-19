@@ -1,0 +1,29 @@
+name: DLL tester
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Run-PSScriptAnalyzer-on-Windows:
+    name: Run PSScriptAnalyzer on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PSScriptAnalyzer module
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -ErrorAction Stop
+      - name: Get list of rules
+        shell: pwsh
+        run: |
+          Get-ScriptAnalyzerRule
+      - name: Install MinGW
+        run: |
+          choco install mingw
+
+      - name: Compile cpp
+        run: |
+          g++ -o main main.cpp
