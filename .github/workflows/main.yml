@@ -34,6 +34,6 @@ jobs:
         run: |
           cd $Env:GITHUB_WORKSPACE/tests
           dir
-          main.exe
+          tests/main.exe
 
 
