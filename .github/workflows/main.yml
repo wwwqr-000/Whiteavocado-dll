@@ -33,6 +33,7 @@ jobs:
         shell: cmd
         run: |
           cd $Env:GITHUB_WORKSPACE/tests
+          dir
           main.exe
 
 
