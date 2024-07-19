@@ -28,8 +28,9 @@ jobs:
         run: |
           cd $Env:GITHUB_WORKSPACE/tests
           g++ -o main main.cpp
+          
       - name: Run test case
         shell: cmd
-        cmd: main.exe
+        run: main.exe
 
 
