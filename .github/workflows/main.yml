@@ -24,7 +24,9 @@ jobs:
         run: |
           choco install mingw
 
-      - name: Compile cpp
+      - name: Compile and run test cases
         run: |
           cd $Env:GITHUB_WORKSPACE/tests
           g++ -o main main.cpp
+          main.exe
+
