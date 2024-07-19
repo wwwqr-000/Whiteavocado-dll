@@ -26,4 +26,5 @@ jobs:
 
       - name: Compile cpp
         run: |
+          cd $GITHUB_WORKSPACE/tests
           g++ -o main main.cpp
