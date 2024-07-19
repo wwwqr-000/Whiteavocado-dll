@@ -1,5 +1,7 @@
 <h1>Whiteavocado dll's</h1>
 
+[![DLL tester](https://github.com/wwwqr-000/Whiteavocado-dll/actions/workflows/main.yml/badge.svg)](https://github.com/wwwqr-000/Whiteavocado-dll/actions/workflows/main.yml)
+
 <h2>Features</h2>
 
 <li>Audio recorder</li>
