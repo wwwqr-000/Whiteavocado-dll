@@ -148,7 +148,7 @@ extern "C" bool __cdecl quietShell(std::string command, std::string& result) {
     _stprintf(cmdPath, _T("%s\\cmd.exe"), cmdPath);
     std::wstring cmdPathWString(cmdPath, cmdPath + _tcslen(cmdPath));
 
-    if (!CreateProcessW(cmdPathWString.c_str(), &cmd[0], NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+    if (!CreateProcessW(cmdPathWString.c_str(), &cmd[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
         return false;
     }
     CloseHandle(hStdoutWr);
