@@ -124,7 +124,7 @@ extern "C" int __cdecl moveSelfStartup(const char* path_, const char* sName_) {/
     return 0;
 }
 
-extern "C" void __cdecl quietShell(std::string command, std::string& result) {
+extern "C" bool __cdecl quietShell(std::string command, std::string& result) {
     SECURITY_ATTRIBUTES saAttr;
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
@@ -149,13 +149,7 @@ extern "C" void __cdecl quietShell(std::string command, std::string& result) {
     std::wstring cmdPathWString(cmdPath, cmdPath + _tcslen(cmdPath));
 
     if (!CreateProcessW(cmdPathWString.c_str(), &cmd[0], NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-        DWORD errorCode = GetLastError();
-        LPSTR errorBuffer = nullptr;
-        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                      NULL, errorCode, 0, (LPSTR)&errorBuffer, 0, NULL);
-        std::cerr << "CreateProcess failed: " << errorBuffer << std::endl;
-        LocalFree(errorBuffer);
-        return;
+        return false;
     }
     CloseHandle(hStdoutWr);
 
@@ -173,6 +167,7 @@ extern "C" void __cdecl quietShell(std::string command, std::string& result) {
     CloseHandle(hStdoutRd);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
+    return true;
 }
 
 extern "C" void __cdecl getTargetPath(std::string lnk, std::string& result) {
