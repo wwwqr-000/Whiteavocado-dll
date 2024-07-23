@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <iostream>
 
-bool lStat = true;//The
+bool lStat = true;
 char triggeredKey;
 
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {

@@ -669,18 +669,26 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
 }
 //
 
-extern "C" bool __cdecl takeScreenshot(const char* fullOutPath) {
+extern "C" void getScreenResolution(int& x, int& y) {
     RECT box;
     GetWindowRect(GetDesktopWindow(), &box);
-    int width = box.right - box.left;
-    int height = box.bottom - box.top;
+    x = box.right;
+    y = box.bottom;
+}
+
+extern "C" bool __cdecl takeScreenshot(const char* fullOutPath, int beginX, int beginY, int endX, int endY) {
+    if (beginX >= endX || beginY >= endY) {//There is nothing to capture in that space.
+        return false;
+    }
+    int width = endX - beginX;
+    int height = endY - beginY;
 
     HDC hdc = GetDC(NULL);
     HDC hdcMem = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, width, height);
     SelectObject(hdcMem, bitmap);
 
-    BitBlt(hdcMem, 0, 0, width, height, hdc, 0, 0, SRCCOPY);
+    BitBlt(hdcMem, 0, 0, width, height, hdc, beginX, beginY, SRCCOPY);
 
     BITMAPFILEHEADER bfHeader;
     BITMAPINFOHEADER biHeader;
@@ -727,3 +735,50 @@ extern "C" bool __cdecl takeScreenshot(const char* fullOutPath) {
 
     return true;
 }
+
+//Listener
+bool lStat = true;
+char triggeredKey;
+
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    bool keyPressed = false;
+    if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT* pKB = (KBDLLHOOKSTRUCT*)lParam;
+        switch (wParam) {
+            case WM_KEYDOWN:
+                if (!keyPressed) {
+                    triggeredKey = (char)MapVirtualKey(pKB->vkCode, MAPVK_VK_TO_CHAR);
+                    keyPressed = true;
+                }
+                break;
+            case WM_KEYUP:
+                keyPressed = false;
+                lStat = false;
+                break;
+        }
+    }
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+extern "C" char __cdecl keyListener(const char* type, std::string& stat) {
+    lStat = true;
+    HMODULE hModule = GetModuleHandle(NULL);
+    HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, 0);
+    if (hHook == NULL) {
+        DWORD errorCode = GetLastError();
+        stat = ("Could not start listener. Error: " + std::to_string(errorCode) + "\n").c_str();
+        return ' ';
+    }
+
+    MSG msg;
+    while (lStat) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+    UnhookWindowsHookEx(hHook);
+    stat = "ok";
+    return triggeredKey;
+}
+//
