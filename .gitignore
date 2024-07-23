@@ -90,3 +90,6 @@ listener/cpp-example/obj/Release/main.o
 screen/cpp-example/screenshot.bmp
 screen/cpp-example/main.exe
 screen/cpp-example/main.o
+tests/obj/Debug/main.o
+tests/bin/Debug/tests.exe
+tests/tests.cbp
