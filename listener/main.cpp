@@ -1,29 +1,47 @@
 #include <windows.h>
 #include <iostream>
 
+bool lStat = true;//The
+char triggeredKey;
+
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    bool keyPressed = false;
     if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT* pKB = (KBDLLHOOKSTRUCT*)lParam;
         switch (wParam) {
             case WM_KEYDOWN:
-                std::cout << "Key down: " << (int)((KBDLLHOOKSTRUCT*)lParam)->vkCode << std::endl;
-            break;
+                if (!keyPressed) {
+                    triggeredKey = (char)MapVirtualKey(pKB->vkCode, MAPVK_VK_TO_CHAR);
+                    keyPressed = true;
+                }
+                break;
             case WM_KEYUP:
-                std::cout << "Key up: " << (int)((KBDLLHOOKSTRUCT*)lParam)->vkCode << std::endl;
-            break;
+                keyPressed = false;
+                lStat = false;
+                break;
         }
     }
-
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-extern "C" void __cdecl key(const char* type, bool debug) {
-    HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD, KeyboardProc, GetModuleHandle(NULL), 0);
-    if (hHook == NULL && debug) { std::cout << "Could not start listener.\n"; return; }
+extern "C" char __cdecl keyListener(const char* type, std::string& stat) {
+    lStat = true;
+    HMODULE hModule = GetModuleHandle(NULL);
+    HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, 0);
+    if (hHook == NULL) {
+        DWORD errorCode = GetLastError();
+        stat = ("Could not start listener. Error: " + std::to_string(errorCode) + "\n").c_str();
+        return ' ';
+    }
 
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    while (lStat) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     }
     UnhookWindowsHookEx(hHook);
+    stat = "ok";
+    return triggeredKey;
 }
