@@ -87,3 +87,6 @@ listener/cpp-example/bin/Release/cpp-example.exe
 listener/cpp-example/cpp-example.cbp
 listener/cpp-example/cpp-example.depend
 listener/cpp-example/obj/Release/main.o
+screen/cpp-example/screenshot.bmp
+screen/cpp-example/main.exe
+screen/cpp-example/main.o
