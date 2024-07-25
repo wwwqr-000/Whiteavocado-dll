@@ -21,7 +21,7 @@ using DL = void (__cdecl*)(int, int, int, int, int, int, int, int, bool);
 using DB = int (__cdecl*)(const char*, int, int, int, int);
 using GP = void (__cdecl*)(int, int, int&, int&, int&);
 using MB = void (__cdecl*)(const char*, const char*, const char*, const char*);
-using KL = char (__cdecl*)(const char*, std::string&);
+using KL = int (__cdecl*)(const char*, std::string&);
 
 GUN const getUName = reinterpret_cast<GUN>(GetProcAddress(WDll, "getUName"));                           //checking in main
 GUN const getSelfName = reinterpret_cast<GUN>(GetProcAddress(WDll, "getSelfName"));                     //checking in main
