@@ -95,3 +95,8 @@ tests/bin/Debug/tests.exe
 tests/tests.cbp
 listener/cpp-example/bin/Debug/cpp-example.exe
 listener/cpp-example/obj/Debug/main.o
+all/bin/Debug/liball.a
+all/bin/Debug/liball.def
+all/obj/Debug/main.o
+tests/tests.layout
+listener/cpp-example/cpp-example.layout
