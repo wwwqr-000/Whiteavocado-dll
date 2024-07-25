@@ -3,7 +3,7 @@
 
 HMODULE LDll = LoadLibraryExW(L"../bin/Release/listener.dll", nullptr, 0);
 
-using KL = char (__cdecl*)(const char*, std::string&);
+using KL = int (__cdecl*)(const char*, std::string&);
 
 KL const keyListener = reinterpret_cast<KL>(GetProcAddress(LDll, "keyListener"));
 

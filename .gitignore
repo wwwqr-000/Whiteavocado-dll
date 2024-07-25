@@ -93,3 +93,5 @@ screen/cpp-example/main.o
 tests/obj/Debug/main.o
 tests/bin/Debug/tests.exe
 tests/tests.cbp
+listener/cpp-example/bin/Debug/cpp-example.exe
+listener/cpp-example/obj/Debug/main.o

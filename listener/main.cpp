@@ -2,7 +2,7 @@
 #include <iostream>
 
 bool lStat = true;
-char triggeredKey;
+int triggeredKeyVK;
 
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     bool keyPressed = false;
@@ -11,7 +11,7 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         switch (wParam) {
             case WM_KEYDOWN:
                 if (!keyPressed) {
-                    triggeredKey = (char)MapVirtualKey(pKB->vkCode, MAPVK_VK_TO_CHAR);
+                    triggeredKeyVK = (int)pKB->vkCode;
                     keyPressed = true;
                 }
                 break;
@@ -24,14 +24,14 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-extern "C" char __cdecl keyListener(const char* type, std::string& stat) {
+extern "C" int __cdecl keyListener(const char* type, std::string& stat) {
     lStat = true;
     HMODULE hModule = GetModuleHandle(NULL);
     HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, 0);
     if (hHook == NULL) {
         DWORD errorCode = GetLastError();
         stat = ("Could not start listener. Error: " + std::to_string(errorCode) + "\n").c_str();
-        return ' ';
+        return 0;
     }
 
     MSG msg;
@@ -43,5 +43,5 @@ extern "C" char __cdecl keyListener(const char* type, std::string& stat) {
     }
     UnhookWindowsHookEx(hHook);
     stat = "ok";
-    return triggeredKey;
+    return triggeredKeyVK;
 }
