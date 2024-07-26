@@ -160,6 +160,7 @@ extern "C" void __cdecl getPixelValue(int x, int y, int& r, int& g, int& b) {
 
 extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, std::string& result) {
     int MB_icon, MB_button;
+    INT_PTR resVal;
     std::string button = std::string(button_);
     std::string icon = std::string(icon_);
 
@@ -187,6 +188,9 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     else if (button == "ync") {
         MB_button = MB_YESNOCANCEL;
     }
+    else {
+        MB_button = MB_OK;
+    }
 
     if (icon == "!") {
         MB_icon = MB_ICONEXCLAMATION;
@@ -209,8 +213,16 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     else if (icon == "e") {
         MB_icon = MB_ICONERROR;
     }
+    else {
+        icon = "none";
+    }
 
-    INT_PTR resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+    if (icon == "none") {
+        resVal = MessageBox(NULL, innerTxt, title, MB_button);
+    }
+    else {
+        resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+    }
 
     switch (resVal) {
         case IDOK:

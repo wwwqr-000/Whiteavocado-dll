@@ -2,7 +2,9 @@
 #include <iostream>
 
 bool lStat = true;
+bool bStat = true;
 int triggeredKeyVK;
+int buttonIndex;
 
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     bool keyPressed = false;
@@ -24,7 +26,29 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-extern "C" int __cdecl keyListener(const char* type, std::string& stat) {
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode != HC_ACTION) {
+        return CallNextHookEx(NULL, nCode, wParam, lParam);
+    }
+    switch (wParam) {
+        case WM_LBUTTONDOWN:
+            buttonIndex = 0;
+            bStat = false;
+        break;
+        case WM_RBUTTONDOWN:
+            buttonIndex = 1;
+            bStat = false;
+        break;
+        case WM_MBUTTONDOWN:
+            buttonIndex = 2;
+            bStat = false;
+        break;
+    }
+
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+extern "C" int __cdecl keyListener(std::string& stat) {
     lStat = true;
     HMODULE hModule = GetModuleHandle(NULL);
     HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, 0);
@@ -44,4 +68,24 @@ extern "C" int __cdecl keyListener(const char* type, std::string& stat) {
     UnhookWindowsHookEx(hHook);
     stat = "ok";
     return triggeredKeyVK;
+}
+
+extern "C" int __cdecl buttonListener(const char* type, std::string& stat) {
+    bStat = true;
+    HMODULE hModule = GetModuleHandle(NULL);
+    HHOOK hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hModule, 0);
+    if (hMouseHook == NULL) {
+        stat = "Failed to setup hook";
+        return -1;
+    }
+    MSG msg;
+    while (bStat) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    UnhookWindowsHookEx(hMouseHook);
+    return buttonIndex;
 }

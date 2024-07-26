@@ -3,9 +3,10 @@
 
 HMODULE LDll = LoadLibraryExW(L"../bin/Release/listener.dll", nullptr, 0);
 
-using KL = int (__cdecl*)(const char*, std::string&);
+using BL = int (__cdecl*)(std::string&);
 
-KL const keyListener = reinterpret_cast<KL>(GetProcAddress(LDll, "keyListener"));
+BL const keyListener = reinterpret_cast<BL>(GetProcAddress(LDll, "keyListener"));
+BL const buttonListener = reinterpret_cast<BL>(GetProcAddress(LDll, "buttonListener"));
 
 
 void free() {
@@ -15,7 +16,9 @@ void free() {
 int main() {
     std::string kyResult;
     while (true) {
-        std::cout << keyListener("global", kyResult);
+        std::cout << buttonListener(kyResult);
+        kyResult = "";
+        std::cout << keyListener(kyResult);
         kyResult = "";
     }
     free();

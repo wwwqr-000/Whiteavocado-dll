@@ -589,6 +589,7 @@ extern "C" void __cdecl getPixelValue(int x, int y, int& r, int& g, int& b) {
 
 extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const char* button_, const char* icon_, std::string& result) {
     int MB_icon, MB_button;
+    INT_PTR resVal;
     std::string button = std::string(button_);
     std::string icon = std::string(icon_);
 
@@ -616,6 +617,9 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     else if (button == "ync") {
         MB_button = MB_YESNOCANCEL;
     }
+    else {
+        MB_button = MB_OK;
+    }
 
     if (icon == "!") {
         MB_icon = MB_ICONEXCLAMATION;
@@ -638,8 +642,16 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     else if (icon == "e") {
         MB_icon = MB_ICONERROR;
     }
+    else {
+        icon = "none";
+    }
 
-    INT_PTR resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+    if (icon == "none") {
+        resVal = MessageBox(NULL, innerTxt, title, MB_button);
+    }
+    else {
+        resVal = MessageBox(NULL, innerTxt, title, MB_icon | MB_button);
+    }
 
     switch (resVal) {
         case IDOK:
@@ -738,7 +750,9 @@ extern "C" bool __cdecl takeScreenshot(const char* fullOutPath, int beginX, int 
 
 //Listener
 bool lStat = true;
+bool bStat = true;
 int triggeredKeyVK;
+int buttonIndex;
 
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     bool keyPressed = false;
@@ -760,7 +774,29 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-extern "C" int __cdecl keyListener(const char* type, std::string& stat) {
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode != HC_ACTION) {
+        return CallNextHookEx(NULL, nCode, wParam, lParam);
+    }
+    switch (wParam) {
+        case WM_LBUTTONDOWN:
+            buttonIndex = 0;
+            bStat = false;
+        break;
+        case WM_RBUTTONDOWN:
+            buttonIndex = 1;
+            bStat = false;
+        break;
+        case WM_MBUTTONDOWN:
+            buttonIndex = 2;
+            bStat = false;
+        break;
+    }
+
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+extern "C" int __cdecl keyListener(std::string& stat) {
     lStat = true;
     HMODULE hModule = GetModuleHandle(NULL);
     HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, 0);
@@ -780,5 +816,25 @@ extern "C" int __cdecl keyListener(const char* type, std::string& stat) {
     UnhookWindowsHookEx(hHook);
     stat = "ok";
     return triggeredKeyVK;
+}
+
+extern "C" int __cdecl buttonListener(const char* type, std::string& stat) {
+    bStat = true;
+    HMODULE hModule = GetModuleHandle(NULL);
+    HHOOK hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hModule, 0);
+    if (hMouseHook == NULL) {
+        stat = "Failed to setup hook";
+        return -1;
+    }
+    MSG msg;
+    while (bStat) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    UnhookWindowsHookEx(hMouseHook);
+    return buttonIndex;
 }
 //

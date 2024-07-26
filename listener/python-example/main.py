@@ -1,9 +1,14 @@
 import time
 import ctypes
 
-listener = ctypes.CDLL("../bin/Release/listener.dll")
+dll = ctypes.CDLL("../bin/Release/listener.dll")
 
-listener.key.restype = None
-listener.key.argtypes = [ctypes.c_char_p, ctypes.c_bool]
+dll.keyListener.restype = ctypes.c_int
+dll.keyListener.argtypes = [ctypes.c_char_p]
 
-listener.key(b"a", True)
+stat = ctypes.create_string_buffer(256)#The value that gets used as sttatus for executing the command.
+
+resultVKCode = dll.keyListener(stat)
+
+print("VK-code:")
+print(resultVKCode)

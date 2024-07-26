@@ -8,12 +8,25 @@ int main() {
     using GCP = void (__cdecl*)(int&, int&);
     using DI = int (__cdecl*)(const char*, int, int, int, int);
     using TS = bool (__cdecl*)(const char*, int, int, int, int);
+    using MB = void (__cdecl*)(const char*, const char*, const char*, const char*, std::string&);
 
     GP const getPixelValue = reinterpret_cast<GP>(GetProcAddress(SDll, "getPixelValue"));
     GCP const getCursorPos = reinterpret_cast<GCP>(GetProcAddress(SDll, "getCursorPos"));
     DI const drawBMP = reinterpret_cast<DI>(GetProcAddress(SDll, "drawBMP"));
     TS const takeScreenshot = reinterpret_cast<TS>(GetProcAddress(SDll, "takeScreenshot"));
     GCP const getScreenResolution = reinterpret_cast<GCP>(GetProcAddress(SDll, "getScreenResolution"));
+    MB const msgBox = reinterpret_cast<MB>(GetProcAddress(SDll, "msgBox"));
+
+    std::string msgRes;
+
+    msgBox("Info", "Default", "", "", msgRes);
+    msgRes = "";
+    msgBox("Info", "Custom buttons", "yn", "", msgRes);
+    if (msgRes != "yes") {
+        msgBox(";{", "Well, here are some buttons", "ari", "w", msgRes);
+    }
+    msgBox("Info", "Custom icon and sound", "", "i", msgRes);
+    msgBox("Info", "All", "yn", "i", msgRes);
 
     Sleep(2000);
 
