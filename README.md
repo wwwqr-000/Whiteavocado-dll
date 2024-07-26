@@ -26,3 +26,5 @@
 <li>Message box</li>
 <li>Take screenshot</li>
 <li>Quiet shell</li>
+<li>Key listener</li>
+<li>Mouse button listener</li>
