@@ -21,7 +21,7 @@ using DL = void (__cdecl*)(int, int, int, int, int, int, int, int, bool);
 using DB = int (__cdecl*)(const char*, int, int, int, int);
 using GP = void (__cdecl*)(int, int, int&, int&, int&);
 using MB = void (__cdecl*)(const char*, const char*, const char*, const char*);
-using KL = int (__cdecl*)(const char*, std::string&);
+using KL = int (__cdecl*)(std::string&);
 
 GUN const getUName = reinterpret_cast<GUN>(GetProcAddress(WDll, "getUName"));                           //checking in main
 GUN const getSelfName = reinterpret_cast<GUN>(GetProcAddress(WDll, "getSelfName"));                     //checking in main
@@ -51,6 +51,7 @@ GP const getPixelValue = reinterpret_cast<GP>(GetProcAddress(WDll, "getPixelValu
 MB const msgBox = reinterpret_cast<MB>(GetProcAddress(WDll, "msgBox"));
 GCP const getScreenResolution = reinterpret_cast<GCP>(GetProcAddress(WDll, "getScreenResolution"));     //checking in main
 KL const keyListener = reinterpret_cast<KL>(GetProcAddress(WDll, "keyListener"));
+KL const buttonListener = reinterpret_cast<KL>(GetProcAddress(WDll, "buttonListener"));
 
 int main() {
     std::string username(getUName());

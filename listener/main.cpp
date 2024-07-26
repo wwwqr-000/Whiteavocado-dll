@@ -70,7 +70,7 @@ extern "C" int __cdecl keyListener(std::string& stat) {
     return triggeredKeyVK;
 }
 
-extern "C" int __cdecl buttonListener(const char* type, std::string& stat) {
+extern "C" int __cdecl buttonListener(std::string& stat) {
     bStat = true;
     HMODULE hModule = GetModuleHandle(NULL);
     HHOOK hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hModule, 0);

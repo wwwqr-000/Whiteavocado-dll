@@ -100,3 +100,5 @@ all/bin/Debug/liball.def
 all/obj/Debug/main.o
 tests/tests.layout
 listener/cpp-example/cpp-example.layout
+tests/bin/Release/tests.exe
+tests/obj/Release/main.o
