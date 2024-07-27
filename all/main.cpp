@@ -775,22 +775,35 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    bool valid = true;
     if (nCode != HC_ACTION) {
         return CallNextHookEx(NULL, nCode, wParam, lParam);
     }
     switch (wParam) {
         case WM_LBUTTONDOWN:
             buttonIndex = 0;
-            bStat = false;
         break;
         case WM_RBUTTONDOWN:
             buttonIndex = 1;
-            bStat = false;
         break;
         case WM_MBUTTONDOWN:
             buttonIndex = 2;
-            bStat = false;
         break;
+        case WM_LBUTTONUP:
+            buttonIndex = 3;
+        break;
+        case WM_RBUTTONUP:
+            buttonIndex = 4;
+        break;
+        case WM_MBUTTONUP:
+            buttonIndex = 5;
+        break;
+        default:
+            valid = false;
+    }
+
+    if (valid) {
+        bStat = false;
     }
 
     return CallNextHookEx(NULL, nCode, wParam, lParam);
