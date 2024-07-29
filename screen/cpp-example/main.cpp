@@ -9,6 +9,7 @@ int main() {
     using DI = int (__cdecl*)(const char*, int, int, int, int);
     using TS = bool (__cdecl*)(const char*, int, int, int, int);
     using MB = void (__cdecl*)(const char*, const char*, const char*, const char*, std::string&);
+    using CS = void (__cdecl*)();
 
     GP const getPixelValue = reinterpret_cast<GP>(GetProcAddress(SDll, "getPixelValue"));
     GCP const getCursorPos = reinterpret_cast<GCP>(GetProcAddress(SDll, "getCursorPos"));
@@ -16,6 +17,7 @@ int main() {
     TS const takeScreenshot = reinterpret_cast<TS>(GetProcAddress(SDll, "takeScreenshot"));
     GCP const getScreenResolution = reinterpret_cast<GCP>(GetProcAddress(SDll, "getScreenResolution"));
     MB const msgBox = reinterpret_cast<MB>(GetProcAddress(SDll, "msgBox"));
+    CS const cls = reinterpret_cast<CS>(GetProcAddress(SDll, "cls"));
 
     std::string msgRes;
 
@@ -44,6 +46,12 @@ int main() {
     for (int i, off; i <= 20; i++, off += 40) {//Example with test.bmp format (Draw 20 times)
         std::cout << drawBMP("test.bmp", off, 10, off, 50) << "\n";
     }
+
+    Sleep(1000);
+
+    cls();
+
+    Sleep(1000);
 
     std::cout << takeScreenshot("screenshot.bmp", 0, 0, resX, resY) << "\n";//Take a screenshot from 0, 0  to max res x, y
 

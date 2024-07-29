@@ -138,7 +138,8 @@ extern "C" bool __cdecl takeScreenshot(const char* fullOutPath, int beginX, int 
 }
 
 extern "C" void __cdecl cls() {
-    std::cout << "No working cls at the time. (W.I.P)\n";
+    InvalidateRect(NULL, NULL, TRUE);
+    UpdateWindow(NULL);
 }
 
 extern "C" void __cdecl getCursorPos(int& x, int& y) {
