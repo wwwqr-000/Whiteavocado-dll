@@ -27,7 +27,7 @@ extern "C" void __cdecl drawLine(int xStart, int yStart, int xEnd, int yEnd, int
     if (debug) { std::cout << "Drew line.\n"; }
 }
 
-extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int height) {
+extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int height, int offX, int offY) {
     HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, imgPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     if (!hBitmap) { return 1; }
 
@@ -60,7 +60,7 @@ extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int
         return 5;
     }
 
-    BitBlt(hdcScreen, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+    BitBlt(hdcScreen, x, y, width, height, hdcMem, offX, offY, SRCCOPY);
 
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
@@ -250,4 +250,8 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
         default:
             result = "empty";
     }
+}
+
+extern "C" void __cdecl drawTxt(const char* txt, int x, int y) {
+
 }

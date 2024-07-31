@@ -6,10 +6,11 @@ int main() {
 
     using GP = void (__cdecl*)(int, int, int&, int&, int&);
     using GCP = void (__cdecl*)(int&, int&);
-    using DI = int (__cdecl*)(const char*, int, int, int, int);
+    using DI = int (__cdecl*)(const char*, int, int, int, int, int, int);
     using TS = bool (__cdecl*)(const char*, int, int, int, int);
     using MB = void (__cdecl*)(const char*, const char*, const char*, const char*, std::string&);
     using CS = void (__cdecl*)();
+    using DT = void (__cdecl*)(const char*, int, int, int);
 
     GP const getPixelValue = reinterpret_cast<GP>(GetProcAddress(SDll, "getPixelValue"));
     GCP const getCursorPos = reinterpret_cast<GCP>(GetProcAddress(SDll, "getCursorPos"));
@@ -18,8 +19,13 @@ int main() {
     GCP const getScreenResolution = reinterpret_cast<GCP>(GetProcAddress(SDll, "getScreenResolution"));
     MB const msgBox = reinterpret_cast<MB>(GetProcAddress(SDll, "msgBox"));
     CS const cls = reinterpret_cast<CS>(GetProcAddress(SDll, "cls"));
+    DT const drawTxt = reinterpret_cast<DT>(GetProcAddress(SDll, "drawTxt"));
 
     std::string msgRes;
+
+    std::cout << drawBMP("alphabeth.bmp", 10, 10, 100, 100, 0, 0);
+
+    Sleep(2000);
 
     msgBox("Info", "Default", "", "", msgRes);
     msgRes = "";
@@ -44,7 +50,7 @@ int main() {
     std::cout << "Screen resolution:\n\nX:" << resX << "\nY:" << resY << "\n\n";
 
     for (int i, off; i <= 20; i++, off += 40) {//Example with test.bmp format (Draw 20 times)
-        std::cout << drawBMP("test.bmp", off, 10, off, 50) << "\n";
+        std::cout << drawBMP("test.bmp", off, 10, off, 50, 0, 0) << "\n";
     }
 
     Sleep(1000);
