@@ -10,7 +10,8 @@ int main() {
     using TS = bool (__cdecl*)(const char*, int, int, int, int);
     using MB = void (__cdecl*)(const char*, const char*, const char*, const char*, std::string&);
     using CS = void (__cdecl*)();
-    using DT = void (__cdecl*)(const char*, int, int, int);
+    using DT = void (__cdecl*)(const char*, int, int, int, int, int, int, int, int, int, int, int);
+    using FR = void (__cdecl*)(int, int, int, int, int, int, int);
 
     GP const getPixelValue = reinterpret_cast<GP>(GetProcAddress(SDll, "getPixelValue"));
     GCP const getCursorPos = reinterpret_cast<GCP>(GetProcAddress(SDll, "getCursorPos"));
@@ -20,12 +21,23 @@ int main() {
     MB const msgBox = reinterpret_cast<MB>(GetProcAddress(SDll, "msgBox"));
     CS const cls = reinterpret_cast<CS>(GetProcAddress(SDll, "cls"));
     DT const drawTxt = reinterpret_cast<DT>(GetProcAddress(SDll, "drawTxt"));
+    FR const fillRect = reinterpret_cast<FR>(GetProcAddress(SDll, "fillRect"));
 
     std::string msgRes;
 
+    Sleep(1000);
+
+    drawTxt("Test123", 10, 10, 110, 110, 0, 255, 0, 255, 255, 255, 24);
+
+    Sleep(1000);
+
     std::cout << drawBMP("alphabeth.bmp", 10, 10, 100, 100, 0, 0);
 
-    Sleep(2000);
+    Sleep(1000);
+
+    fillRect(20, 20, 120, 120, 0, 255, 0);
+
+    Sleep(1000);
 
     msgBox("Info", "Default", "", "", msgRes);
     msgRes = "";

@@ -252,6 +252,27 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
     }
 }
 
-extern "C" void __cdecl drawTxt(const char* txt, int x, int y) {
+extern "C" void __cdecl drawTxt(const char* txt, int beginX, int beginY, int endX, int endY, int tR, int tG, int tB, int bR, int bG, int bB, int fontSize) {
+    RECT rect = { beginX, beginY, endX, endY };
+    HDC hdc = GetDC(NULL);
+    int fontSizeInPixels = -MulDiv(fontSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    HFONT font = CreateFont(fontSizeInPixels, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
+    HFONT oldFont = (HFONT)SelectObject(hdc, font);
+    SetTextColor(hdc, RGB(tR, tG, tB));
+    SetBkColor(hdc, RGB(bR, bG, bB));
+    SetBkMode(hdc, OPAQUE);
+    DrawText(hdc, txt, -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+    SelectObject(hdc, oldFont);
+    DeleteObject(font);
+    ReleaseDC(NULL, hdc);
+}
 
+extern "C" void __cdecl fillRect(int beginX, int beginY, int endX, int endY, int r, int g, int b) {
+    HDC hdc = GetDC(NULL);
+    RECT box = { beginX, beginY, endX, endY };
+    HBRUSH hBrush = CreateSolidBrush(RGB(r, g, b));
+
+    FillRect(hdc, &box, hBrush);
+    DeleteObject(hBrush);
+    ReleaseDC(NULL, hdc);
 }
