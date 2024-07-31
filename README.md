@@ -28,3 +28,5 @@
 <li>Quiet shell</li>
 <li>Key listener</li>
 <li>Mouse button listener</li>
+<li>Draw filled rect on screen</li>
+<li>Draw text on screen</li>
