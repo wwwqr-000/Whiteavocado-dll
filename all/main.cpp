@@ -523,7 +523,7 @@ extern "C" void __cdecl drawLine(int xStart, int yStart, int xEnd, int yEnd, int
     if (debug) { std::cout << "Drew line.\n"; }
 }
 
-extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int height) {
+extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int height, int offX, int offY) {
     HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, imgPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     if (!hBitmap) { return 1; }
 
@@ -556,7 +556,7 @@ extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int
         return 5;
     }
 
-    BitBlt(hdcScreen, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+    BitBlt(hdcScreen, x, y, width, height, hdcMem, offX, offY, SRCCOPY);
 
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
@@ -564,6 +564,73 @@ extern "C" int __cdecl drawBMP(const char* imgPath, int x, int y, int width, int
     ReleaseDC(NULL, hdcScreen);
 
     return 0;
+}
+
+extern "C" void getScreenResolution(int& x, int& y) {
+    RECT box;
+    GetWindowRect(GetDesktopWindow(), &box);
+    x = box.right;
+    y = box.bottom;
+}
+
+extern "C" bool __cdecl takeScreenshot(const char* fullOutPath, int beginX, int beginY, int endX, int endY) {
+    if (beginX >= endX || beginY >= endY) {//There is nothing to capture in that space.
+        return false;
+    }
+    int width = endX - beginX;
+    int height = endY - beginY;
+
+    HDC hdc = GetDC(NULL);
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP bitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, bitmap);
+
+    BitBlt(hdcMem, 0, 0, width, height, hdc, beginX, beginY, SRCCOPY);
+
+    BITMAPFILEHEADER bfHeader;
+    BITMAPINFOHEADER biHeader;
+    biHeader.biSize = sizeof(BITMAPINFOHEADER);
+    biHeader.biWidth = width;
+    biHeader.biHeight = height;
+    biHeader.biPlanes = 1;
+    biHeader.biBitCount = 24;
+    biHeader.biCompression = BI_RGB;
+    biHeader.biSizeImage = ((width * 3 + 3) & ~3) * height;
+    biHeader.biXPelsPerMeter = 0;
+    biHeader.biYPelsPerMeter = 0;
+    biHeader.biClrUsed = 0;
+    biHeader.biClrImportant = 0;
+
+    bfHeader.bfType = 0x4D42;//BMP
+    bfHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + biHeader.biSizeImage;
+    bfHeader.bfReserved1 = 0;
+    bfHeader.bfReserved2 = 0;
+    bfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    HANDLE file = CreateFileA(fullOutPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        DeleteObject(bitmap);
+        DeleteDC(hdcMem);
+        ReleaseDC(NULL, hdc);
+        return false;
+    }
+
+    DWORD bytesWritten;
+    WriteFile(file, &bfHeader, sizeof(BITMAPFILEHEADER), &bytesWritten, NULL);
+    WriteFile(file, &biHeader, sizeof(BITMAPINFOHEADER), &bytesWritten, NULL);
+
+    unsigned char* pixels = new unsigned char[biHeader.biSizeImage];
+    GetDIBits(hdcMem, bitmap, 0, height, pixels, (BITMAPINFO*)&biHeader, DIB_RGB_COLORS);
+
+    WriteFile(file, pixels, biHeader.biSizeImage, &bytesWritten, NULL);
+    delete[] pixels;
+    CloseHandle(file);
+
+    DeleteObject(bitmap);
+    DeleteDC(hdcMem);
+    ReleaseDC(NULL, hdc);
+
+    return true;
 }
 
 extern "C" void __cdecl cls() {
@@ -680,74 +747,32 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
             result = "empty";
     }
 }
-//
 
-extern "C" void getScreenResolution(int& x, int& y) {
-    RECT box;
-    GetWindowRect(GetDesktopWindow(), &box);
-    x = box.right;
-    y = box.bottom;
-}
-
-extern "C" bool __cdecl takeScreenshot(const char* fullOutPath, int beginX, int beginY, int endX, int endY) {
-    if (beginX >= endX || beginY >= endY) {//There is nothing to capture in that space.
-        return false;
-    }
-    int width = endX - beginX;
-    int height = endY - beginY;
-
+extern "C" void __cdecl drawTxt(const char* txt, int beginX, int beginY, int endX, int endY, int tR, int tG, int tB, int bR, int bG, int bB, int fontSize) {
+    RECT rect = { beginX, beginY, endX, endY };
     HDC hdc = GetDC(NULL);
-    HDC hdcMem = CreateCompatibleDC(hdc);
-    HBITMAP bitmap = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(hdcMem, bitmap);
-
-    BitBlt(hdcMem, 0, 0, width, height, hdc, beginX, beginY, SRCCOPY);
-
-    BITMAPFILEHEADER bfHeader;
-    BITMAPINFOHEADER biHeader;
-    biHeader.biSize = sizeof(BITMAPINFOHEADER);
-    biHeader.biWidth = width;
-    biHeader.biHeight = height;
-    biHeader.biPlanes = 1;
-    biHeader.biBitCount = 24;
-    biHeader.biCompression = BI_RGB;
-    biHeader.biSizeImage = ((width * 3 + 3) & ~3) * height;
-    biHeader.biXPelsPerMeter = 0;
-    biHeader.biYPelsPerMeter = 0;
-    biHeader.biClrUsed = 0;
-    biHeader.biClrImportant = 0;
-
-    bfHeader.bfType = 0x4D42;//BMP
-    bfHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + biHeader.biSizeImage;
-    bfHeader.bfReserved1 = 0;
-    bfHeader.bfReserved2 = 0;
-    bfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-    HANDLE file = CreateFileA(fullOutPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        DeleteObject(bitmap);
-        DeleteDC(hdcMem);
-        ReleaseDC(NULL, hdc);
-        return false;
-    }
-
-    DWORD bytesWritten;
-    WriteFile(file, &bfHeader, sizeof(BITMAPFILEHEADER), &bytesWritten, NULL);
-    WriteFile(file, &biHeader, sizeof(BITMAPINFOHEADER), &bytesWritten, NULL);
-
-    unsigned char* pixels = new unsigned char[biHeader.biSizeImage];
-    GetDIBits(hdcMem, bitmap, 0, height, pixels, (BITMAPINFO*)&biHeader, DIB_RGB_COLORS);
-
-    WriteFile(file, pixels, biHeader.biSizeImage, &bytesWritten, NULL);
-    delete[] pixels;
-    CloseHandle(file);
-
-    DeleteObject(bitmap);
-    DeleteDC(hdcMem);
+    int fontSizeInPixels = -MulDiv(fontSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    HFONT font = CreateFont(fontSizeInPixels, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
+    HFONT oldFont = (HFONT)SelectObject(hdc, font);
+    SetTextColor(hdc, RGB(tR, tG, tB));
+    SetBkColor(hdc, RGB(bR, bG, bB));
+    SetBkMode(hdc, OPAQUE);
+    DrawText(hdc, txt, -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+    SelectObject(hdc, oldFont);
+    DeleteObject(font);
     ReleaseDC(NULL, hdc);
-
-    return true;
 }
+
+extern "C" void __cdecl fillRect(int beginX, int beginY, int endX, int endY, int r, int g, int b) {
+    HDC hdc = GetDC(NULL);
+    RECT box = { beginX, beginY, endX, endY };
+    HBRUSH hBrush = CreateSolidBrush(RGB(r, g, b));
+
+    FillRect(hdc, &box, hBrush);
+    DeleteObject(hBrush);
+    ReleaseDC(NULL, hdc);
+}
+//end screen.dll
 
 //Listener
 bool lStat = true;
