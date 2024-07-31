@@ -251,3 +251,7 @@ extern "C" void __cdecl msgBox(const char* title, const char* innerTxt, const ch
             result = "empty";
     }
 }
+
+void msgBox(const char* title, const char* innerTxt, std::string& result) {
+    msgBox(title, innerTxt, "", "", result);
+}
