@@ -30,3 +30,8 @@
 <li>Mouse button listener</li>
 <li>Draw filled rect on screen</li>
 <li>Draw text on screen</li>
+
+<h3>Dependencies</h3>
+
+<li>cmd</li>
+<li>powershell</li>
